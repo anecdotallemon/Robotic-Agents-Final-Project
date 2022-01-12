@@ -1,48 +1,56 @@
-import java.util.*;
-import java.io.*;
-import java.math.*;
+using System;
+using System.Linq;
+using System.IO;
+using System.Text;
+using System.Collections;
+using System.Collections.Generic;
 
 /**
  * Grab the pellets as fast as you can!
  **/
-class Player {
-
-    public static void main(String args[]) {
-        Scanner in = new Scanner(System.in);
-        int width = in.nextInt(); // size of the grid
-        int height = in.nextInt(); // top left corner is (x=0, y=0)
-        if (in.hasNextLine()) {
-            in.nextLine();
-        }
-        for (int i = 0; i < height; i++) {
-            String row = in.nextLine(); // one line of the grid: space " " is floor, pound "#" is wall
+class Player
+{
+    static void Main(string[] args)
+    {
+        string[] inputs;
+        inputs = Console.ReadLine().Split(' ');
+        int width = int.Parse(inputs[0]); // size of the grid
+        int height = int.Parse(inputs[1]); // top left corner is (x=0, y=0)
+        for (int i = 0; i < height; i++)
+        {
+            string row = Console.ReadLine(); // one line of the grid: space " " is floor, pound "#" is wall
         }
 
         // game loop
-        while (true) {
-            int myScore = in.nextInt();
-            int opponentScore = in.nextInt();
-            int visiblePacCount = in.nextInt(); // all your pacs and enemy pacs in sight
-            for (int i = 0; i < visiblePacCount; i++) {
-                int pacId = in.nextInt(); // pac number (unique within a team)
-                boolean mine = in.nextInt() != 0; // true if this pac is yours
-                int x = in.nextInt(); // position in the grid
-                int y = in.nextInt(); // position in the grid
-                String typeId = in.next(); // unused in wood leagues
-                int speedTurnsLeft = in.nextInt(); // unused in wood leagues
-                int abilityCooldown = in.nextInt(); // unused in wood leagues
+        while (true)
+        {
+            inputs = Console.ReadLine().Split(' ');
+            int myScore = int.Parse(inputs[0]);
+            int opponentScore = int.Parse(inputs[1]);
+            int visiblePacCount = int.Parse(Console.ReadLine()); // all your pacs and enemy pacs in sight
+            for (int i = 0; i < visiblePacCount; i++)
+            {
+                inputs = Console.ReadLine().Split(' ');
+                int pacId = int.Parse(inputs[0]); // pac number (unique within a team)
+                bool mine = inputs[1] != "0"; // true if this pac is yours
+                int x = int.Parse(inputs[2]); // position in the grid
+                int y = int.Parse(inputs[3]); // position in the grid
+                string typeId = inputs[4]; // unused in wood leagues
+                int speedTurnsLeft = int.Parse(inputs[5]); // unused in wood leagues
+                int abilityCooldown = int.Parse(inputs[6]); // unused in wood leagues
             }
-            int visiblePelletCount = in.nextInt(); // all pellets in sight
-            for (int i = 0; i < visiblePelletCount; i++) {
-                int x = in.nextInt();
-                int y = in.nextInt();
-                int value = in.nextInt(); // amount of points this pellet is worth
+            int visiblePelletCount = int.Parse(Console.ReadLine()); // all pellets in sight
+            for (int i = 0; i < visiblePelletCount; i++)
+            {
+                inputs = Console.ReadLine().Split(' ');
+                int x = int.Parse(inputs[0]);
+                int y = int.Parse(inputs[1]);
+                int value = int.Parse(inputs[2]); // amount of points this pellet is worth
             }
 
-            // Write an action using System.out.println()
-            // To debug: System.err.println("Debug messages...");
-
-            System.out.println("MOVE 0 15 10"); // MOVE <pacId> <x> <y>
+            // Write an action using Console.WriteLine()
+            // To debug: Console.Error.WriteLine("Debug messages...");
+            Console.WriteLine("MOVE 0 10 15"); // MOVE <pacId> <x> <y>
         }
     }
 }
