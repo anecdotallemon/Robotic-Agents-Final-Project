@@ -1,4 +1,5 @@
-﻿namespace DefaultNamespace {
+﻿using System;
+namespace Robotic_Agents_Final_Project {
     
     /// <summary>
     /// Representation of a 2D point in space with integer coefficients. Can be added and subtracted with other points. Immutable.

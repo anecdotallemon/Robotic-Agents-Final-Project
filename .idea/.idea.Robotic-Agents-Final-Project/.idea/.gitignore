@@ -2,10 +2,10 @@
 /shelf/
 /workspace.xml
 # Rider ignored files
-/contentModel.xml
-/modules.xml
 /.idea.Robotic-Agents-Final-Project.iml
+/contentModel.xml
 /projectSettingsUpdater.xml
+/modules.xml
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml

@@ -1,4 +1,7 @@
-﻿namespace DefaultNamespace {
+﻿using System;
+using System.Collections.Generic;
+
+namespace Robotic_Agents_Final_Project {
     
     /// <summary>
     /// "Pseudo-enum" representing cardinal directions in 2D space

@@ -1,4 +1,4 @@
-﻿namespace DefaultNamespace {
+﻿namespace Robotic_Agents_Final_Project {
     static class Params {
         // to do: better way of doing this?
         // encoding in class, maybe?
