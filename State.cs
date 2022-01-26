@@ -21,21 +21,28 @@ namespace Robotic_Agents_Final_Project
         public readonly int Width;
         public readonly int Height;
 
-        // Constructor with gameBoard initialization
-        public State(int width, int height) {
-            Width = width;
-            Height = height;
-
-            _walls = new bool[width, height];
-            _scores = new int[width, height];
+        /// <summary>
+        /// Constructs a new state with the given wall setup. Copies the wall array to a new spot in memory
+        /// </summary>
+        /// <param name="walls">array of bools with true at wall locations</param>
+        public State(bool[,] walls) {
+            Width = walls.GetLength(0);
+            Height = walls.GetLength(1);
             
-            // TODO: set scores to some average estimate???
-
+            _walls = new bool[Width, Height];
+            _scores = new int[Width, Height];
+            
+            for (int i = 0; i < Width; i++) {
+                for (int j = 0; j < Height; j++) {
+                    _walls[i, j] = walls[i,j];
+                }
+            }
+            
         }
         
         public State Clone() {
 
-            State stateCopy = new State(Width, Height);
+            State stateCopy = new State(_walls);
         
             // clone all players
             foreach (Pacman p in _allPlayers) {
