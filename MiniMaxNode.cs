@@ -9,7 +9,7 @@ class MiniMaxNode {
     private State _state;
     private int _height; // zero if leaf node, Params.FutureDepth if root
 
-    private Dictionary<Direction,MiniMaxNode> _children;
+    private Dictionary<GameAction,MiniMaxNode> _children;
     private bool _utilityIsSet = false;
     private double _utility;
 
@@ -31,7 +31,7 @@ class MiniMaxNode {
     
     // construct a tree node with the given state, then immediately make the given move
     // for use in constructing leaves and branches
-    public MiniMaxNode(State s, int height, Direction move, string debugString="") {
+    public MiniMaxNode(State s, int height, GameAction move, string debugString="") {
         _state = s.Clone();
         _height = height;
 
@@ -45,7 +45,7 @@ class MiniMaxNode {
         
     }
     
-    public Dictionary<Direction, MiniMaxNode> GetChildren() {
+    public Dictionary<GameAction, MiniMaxNode> GetChildren() {
 
         if (_height == 0) {
             return null;
@@ -62,7 +62,7 @@ class MiniMaxNode {
     // separated into separate function purely for profiling purposes
     private void MakeChildren() {
         GameAction[] availableMoves = _state.GetMoves();
-        _children = new Dictionary<Direction, MiniMaxNode>();
+        _children = new Dictionary<GameAction, MiniMaxNode>();
 
         foreach (var d in availableMoves) {
             _children[d] = new MiniMaxNode(_state, _height - 1, d, _debugString);
@@ -88,7 +88,7 @@ class MiniMaxNode {
             util = double.NegativeInfinity;
             var curMax = parentMax;
 
-            foreach (KeyValuePair<Direction, MiniMaxNode> kv in GetChildren()) {
+            foreach (KeyValuePair<GameAction, MiniMaxNode> kv in GetChildren()) {
                 util = Math.Max(util, kv.Value.AlphaBetaUtility(curMax, parentMin));
                 curMax = Math.Max(curMax, util);
                 
@@ -99,7 +99,7 @@ class MiniMaxNode {
             util = double.PositiveInfinity;
             var curMin = parentMin;
 
-            foreach (KeyValuePair<Direction, MiniMaxNode> kv in GetChildren()) {
+            foreach (KeyValuePair<GameAction, MiniMaxNode> kv in GetChildren()) {
                 util = Math.Min(util, kv.Value.AlphaBetaUtility(parentMax, curMin));
                 curMin = Math.Min(curMin, util);
                 
@@ -108,7 +108,7 @@ class MiniMaxNode {
             
             // if the current player is an enemy with no moves but NOT the last enemy, it shouldnt provide infinity score
             if (GetChildren().Count == 0 && _state.Enemies.Count > 1) {
-                util = Params.KillReward;
+                util = Params.KillReward; // maybe 
                 curMin = Math.Min(curMin, util);
                 _state.KillCurrent();
             } 
@@ -124,13 +124,13 @@ class MiniMaxNode {
         throw new InvalidOperationException("Must set utility before retrieval!");
     }
 
-    public Direction GetBestMove() {
+    public GameAction GetBestMove() {
         var children = GetChildren();
 
-        Direction bestMove = null;
+        GameAction bestMove = null;
         AlphaBetaUtility(double.NegativeInfinity, double.PositiveInfinity);
         
-        foreach (KeyValuePair<Direction, MiniMaxNode> kv in children) {
+        foreach (KeyValuePair<GameAction, MiniMaxNode> kv in children) {
             Console.Error.WriteLine(kv.Key + ": " + kv.Value.GetUtility());
             if (bestMove == null || children[kv.Key].GetUtility() > children[bestMove].GetUtility()) {
                 bestMove = kv.Key;
@@ -151,7 +151,7 @@ class MiniMaxNode {
         StringBuilder sb = new StringBuilder();
         sb.Append(GetUtility());
 
-        foreach (KeyValuePair<Direction, MiniMaxNode> kv in GetChildren()) {
+        foreach (KeyValuePair<GameAction, MiniMaxNode> kv in GetChildren()) {
             sb.AppendLine(kv.Key + ": " + kv.Value);
         }
 
