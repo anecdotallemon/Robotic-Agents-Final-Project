@@ -40,6 +40,7 @@
     <ItemGroup>
         <Compile Include="Direction.cs" />
         <Compile Include="Game.cs" />
+        <Compile Include="GameAction.cs" />
         <Compile Include="MiniMaxNode.cs" />
         <Compile Include="Params.cs" />
         <Compile Include="Point.cs" />
