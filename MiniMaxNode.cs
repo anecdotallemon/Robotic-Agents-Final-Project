@@ -108,7 +108,7 @@ class MiniMaxNode {
             
             // if the current player is an enemy with no moves but NOT the last enemy, it shouldnt provide infinity score
             if (GetChildren().Count == 0 && _state.Enemies.Count > 1) {
-                util = Params.KillReward; // maybe 
+                util = Params.KillReward; // TODO replace with dynamic estimator?
                 curMin = Math.Min(curMin, util);
                 _state.KillCurrent();
             } 

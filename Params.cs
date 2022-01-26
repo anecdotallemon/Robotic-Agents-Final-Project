@@ -7,5 +7,7 @@
         public static int HEIGHT;
 
         public static bool DebugMode = false;
+
+        public static int KillReward = 100;
     }
 }
