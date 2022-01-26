@@ -4,7 +4,7 @@ namespace Robotic_Agents_Final_Project {
     /**
  * Grab the pellets as fast as you can!
  **/
-    class Player
+    class TempPlayer
     {
         static void Main(string[] args)
         {
