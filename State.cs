@@ -8,12 +8,12 @@ namespace Robotic_Agents_Final_Project
     {
 
         // one list for our pacs and one list for enemies, since we may want to keep track of where we ares
-        public List < Player > MyPacs { get; private set; }
-        public List<Player> Enemies { get; private set; }
+        public List < Pacman > MyPacs { get; private set; }
+        public List<Pacman> Enemies { get; private set; }
         public Point[,] GameBoard;
 
-        private Queue<Player> _turnOrder = new Queue<Player>(); // all alive players, sorted by turn order
-        private List<Player> _allPlayers = new List<Player>(); // list of all players, including dead ones, sorted by initial turn order
+        private Queue<Pacman> _turnOrder = new Queue<Pacman>(); // all alive players, sorted by turn order
+        private List<Pacman> _allPlayers = new List<Pacman>(); // list of all players, including dead ones, sorted by initial turn order
 
         private bool[,] _walls; // true at wall, false at open space
         private int[,] _scores; // 0 at blank, 1 at pellet, 10 at super pellet
@@ -38,22 +38,22 @@ namespace Robotic_Agents_Final_Project
             State stateCopy = new State(Width, Height);
         
             // clone all players
-            foreach (Player p in _allPlayers) {
+            foreach (Pacman p in _allPlayers) {
 
-                Player playerCopy = p.Clone();
+                Pacman pacmanCopy = p.Clone();
             
                 // add to turn orders
-                stateCopy._allPlayers.Add(playerCopy);
+                stateCopy._allPlayers.Add(pacmanCopy);
                 if (p.Alive) {
-                    stateCopy._turnOrder.Enqueue(playerCopy);
+                    stateCopy._turnOrder.Enqueue(pacmanCopy);
                 }
             
                 // add to lists
                 if (p.IsOurPlayer) {
-                    stateCopy.MyPacs.Add(playerCopy);
+                    stateCopy.MyPacs.Add(pacmanCopy);
                 }
                 else {
-                    stateCopy.Enemies.Add(playerCopy);
+                    stateCopy.Enemies.Add(pacmanCopy);
                 }
             }
         
@@ -80,7 +80,7 @@ namespace Robotic_Agents_Final_Project
             throw new NotImplementedException();
         }
 
-        public Player GetCurrentPlayer() {
+        public Pacman GetCurrentPlayer() {
             throw new NotImplementedException();
         }
 

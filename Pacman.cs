@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace Robotic_Agents_Final_Project {
-    public class Player {
+    public class Pacman {
 
         public Point Location;
         public bool IsOurPlayer = false;
@@ -12,12 +12,12 @@ namespace Robotic_Agents_Final_Project {
 
         public bool Alive { get; private set; } = true;
 
-        public Player(int x, int y, int pacId) {
+        public Pacman(int x, int y, int pacId) {
             Location = new Point(x, y);
             PacId = pacId;
         }
 
-        public Player(Point p, int pacId) {
+        public Pacman(Point p, int pacId) {
             Location = p;
             PacId = pacId;
         }
@@ -30,7 +30,7 @@ namespace Robotic_Agents_Final_Project {
         
         // returns -1 if loses, 0 if tie, 1 if loses
         // does NOT call Kill() -- that should only be called by parent state!
-        public bool Combat(Player other) {
+        public bool Combat(Pacman other) {
             throw new NotImplementedException();
         }
         
@@ -53,15 +53,15 @@ namespace Robotic_Agents_Final_Project {
         // note: purely value-wise! NOT always appropriate!!!
         // copies of players should be value-equal but NOT reference-equal
         public override bool Equals(Object obj) {
-            if (obj == null || obj.GetType() != typeof(Player)) return false;
+            if (obj == null || obj.GetType() != typeof(Pacman)) return false;
 
-            Player p = (Player) obj;
+            Pacman p = (Pacman) obj;
             
             return (p.Location.Equals(Location) && p.IsOurPlayer == IsOurPlayer && PacId == p.PacId);
         }
 
-        public Player Clone() {
-            Player p = new Player(Location, PacId);
+        public Pacman Clone() {
+            Pacman p = new Pacman(Location, PacId);
             p.IsOurPlayer = IsOurPlayer;
             p.Alive = Alive;
 
