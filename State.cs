@@ -8,7 +8,7 @@ namespace Robotic_Agents_Final_Project
     {
 
         // one list for our pacs and one list for enemies, since we may want to keep track of where we ares
-        public List < Player > MyPacs { get; private set; }
+        public List <Player> MyPacs { get; private set; }
         public List<Player> Enemies { get; private set; }
         public Point[,] GameBoard;
         
