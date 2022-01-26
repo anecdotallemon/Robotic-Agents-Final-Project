@@ -15,29 +15,22 @@ namespace Robotic_Agents_Final_Project
         private Queue<Player> _turnOrder = new Queue<Player>(); // all alive players, sorted by turn order
         private List<Player> _allPlayers = new List<Player>(); // list of all players, including dead ones, sorted by initial turn order
 
-        private bool[,] _walls;
-        private int[,] _scores;
+        private bool[,] _walls; // true at wall, false at open space
+        private int[,] _scores; // 0 at blank, 1 at pellet, 10 at super pellet
         
         public readonly int Width;
         public readonly int Height;
 
         // Constructor with gameBoard initialization
-        public State(Point[,] GameBoard, List < Player > MyPacs,  List<Player> Enemies   ) {
-            this.GameBoard = new Point[GmaeBoard.GetLength(0) , GameBoard.GetLength(1)] ;
-            for (int i =0; i < GameBoard.GetLength(0), i++){
-                for(int j = 0; j < GameBoard.GetLength(1), j++){
+        public State(int width, int height) {
+            Width = width;
+            Height = height;
 
-                    this.GameBoard[i,j] = GameBoard[i,j];
-                }
-
-
-
-            }
-            for (int i - 0; i< MyPacs.Count, i++ ){
-                this.MyPacs.add
-
-            } 
+            _walls = new bool[width, height];
+            _scores = new int[width, height];
             
+            // TODO: set scores to some average estimate???
+
         }
         
         public State Clone() {
