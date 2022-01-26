@@ -61,7 +61,7 @@ class MiniMaxNode {
     
     // separated into separate function purely for profiling purposes
     private void MakeChildren() {
-        Direction[] availableMoves = _state.GetMoves();
+        GameAction[] availableMoves = _state.GetMoves();
         _children = new Dictionary<Direction, MiniMaxNode>();
 
         foreach (var d in availableMoves) {

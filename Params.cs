@@ -5,5 +5,7 @@
         // wrapping in gets/sets that only the initial functions can access?
         public static int WIDTH;
         public static int HEIGHT;
+
+        public static bool DebugMode = false;
     }
 }
