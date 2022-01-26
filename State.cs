@@ -72,6 +72,14 @@ namespace Robotic_Agents_Final_Project
             return stateCopy;
         }
 
+        public void InitializeForFirstTurn() {
+            throw new NotImplementedException();
+        }
+
+        public void UpdatePlayers() {
+            throw new NotImplementedException();
+        }
+
         public Player GetCurrentPlayer() {
             throw new NotImplementedException();
         }
