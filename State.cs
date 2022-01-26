@@ -8,13 +8,27 @@ namespace Robotic_Agents_Final_Project
     {
 
         // one list for our pacs and one list for enemies, since we may want to keep track of where we ares
-        public List <Player> MyPacs { get; private set; }
+        public List < Player > MyPacs { get; private set; }
         public List<Player> Enemies { get; private set; }
         public Point[,] GameBoard;
         
         // Constructor with gameBoard initialization
-        public State(int width, int height) {
-            GameBoard = new Point[width, height];
+        public State(Point[,] GameBoard, List < Player > MyPacs,  List<Player> Enemies   ) {
+            this.GameBoard = new Point[GmaeBoard.GetLength(0) , GameBoard.GetLength(1)] ;
+            for (int i =0; i < GameBoard.GetLength(0), i++){
+                for(int j = 0; j < GameBoard.GetLength(1), j++){
+
+                    this.GameBoard[i,j] = GameBoard[i,j];
+                }
+
+
+
+            }
+            for (int i - 0; i< MyPacs.Count, i++ ){
+                this.MyPacs.add
+
+            } 
+            
         }
         
         public State Clone() {
