@@ -8,7 +8,8 @@
         
         // Pac types include rock, paper, scissors
         public string PacType = "";
-        
+        // Pac ID for move
+        public int PacId = "";
 
     }
 }
