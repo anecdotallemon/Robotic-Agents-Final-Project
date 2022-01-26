@@ -1,14 +1,24 @@
-﻿namespace Robotic_Agents_Final_Project {
-    public class Player
-    {
+﻿using System;
 
-        public int currentX = "";
-        public int currentY = "";
+namespace Robotic_Agents_Final_Project {
+    public class Player {
+
+        public Point Location;
         public readonly bool IsOurPlayer = false;
         
         // Pac types include rock, paper, scissors
-        public string PacType = "";
-        
+        private PacType _type;
 
+        public bool Combat(Player other) {
+            throw new NotImplementedException();
+        }
+
+
+    }
+
+    enum PacType {
+        Rock,
+        Paper,
+        Scissors
     }
 }
