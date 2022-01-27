@@ -21,8 +21,6 @@ namespace Robotic_Agents_Final_Project
         public readonly int Width;
         public readonly int Height;
 
-         private readonly Point[] _direction = { new Point(0, -1), new Point(1, 0),new Point(0, 1), new Point(-1, 0) } ;
-
         /// <summary>
         /// Constructs a new state with the given wall setup. Copies the wall array to a new spot in memory
         /// </summary>
@@ -106,15 +104,22 @@ namespace Robotic_Agents_Final_Project
         public GameAction[] GetMoves() {
             Pacman turnPac = _turnOrder.Peek();
             List<Point> actions = new List<Point>();
-            for(int i =0; i< _direction.Length; i++ ){
-                if( !((_direction[i] + turnPac.Location).IsOutOfBounds())){
-                actions.Add(_direction[i] + turnPac.Location);
+
+            foreach (Direction d in Direction.Directions) {
+                var newPoint = d.ApplyToPoint(turnPac.Location).Wrap(Width, Height);
+                if (!IsWall(d.ApplyToPoint(turnPac.Location).Wrap(Width, Height))) {
+                    actions.Add();
                 }
             }
-            GameAction[] kids = new GameAction[actions.Count]();
-            for (int j =0; j< actions.Count; j++){
-                kids[j] = new GameAction(actions[j]);
 
+            {
+                if(!(_direction[i] + turnPac.Location).IsOutOfBounds()){
+                    actions.Add(_direction[i] + turnPac.Location);
+                }
+            }
+            GameAction[] kids = new GameAction[actions.Count];
+            for (int j = 0; j< actions.Count; j++){
+                kids[j] = new GameAction(actions[j]);
             }
 
             return kids;
