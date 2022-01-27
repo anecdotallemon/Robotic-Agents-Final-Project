@@ -252,7 +252,7 @@ namespace Robotic_Agents_Final_Project
         }
         
         void Kill(Pacman victim) {
-            // remove from enemies or throw an error
+            // remove from enemies/mypacs
             // remove from turn order
             // mark dead
         
