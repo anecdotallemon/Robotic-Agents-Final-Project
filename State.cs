@@ -21,6 +21,8 @@ namespace Robotic_Agents_Final_Project
         public readonly int Width;
         public readonly int Height;
 
+         private readonly Point[] _direction = { new Point(0, -1), new Point(1, 0),new Point(0, 1), new Point(-1, 0) } ;
+
         /// <summary>
         /// Constructs a new state with the given wall setup. Copies the wall array to a new spot in memory
         /// </summary>
@@ -101,73 +103,23 @@ namespace Robotic_Agents_Final_Project
         }
 
 
-        public GameAction[] GetMoves(int h, List<Pacman> curplayer) {
-             // sends over to recursive helper function
-            getMovesHelper(h,  curplayer, "");
-            // copies all values getKids which has all the actions a player can make 
-            GameAction[] kids = new GameAction[getKids.Count];
-            for(int i =0; i < getKids.Count; i++){
-                kids[i] = new GameAction(getKids[i]);
+        public GameAction[] GetMoves() {
+            Pacman turnPac = _turnOrder.Peek();
+            List<Point> actions = new List<Point>();
+            for(int i =0; i< _direction.Length; i++ ){
+                if( !((_direction[i] + turnPac.Location).IsOutOfBounds())){
+                actions.Add(_direction[i] + turnPac.Location);
+                }
             }
+            GameAction[] kids = new GameAction[actions.Count]();
+            for (int j =0; j< actions.Count; j++){
+                kids[j] = new GameAction(actions[j]);
+
+            }
+
             return kids;
+
            
-        }
-        public Boolean getMovesHelper(int h,  List<Pacman> curplayer, string actions){
-            // when h is 1 we are at the last pac on list
-             if(h ==1 ){
-
-                 string temp = "";
-                // loops through directions which contains the 4 cartinal directions 
-                for (int i =0; i < directions.Length; i++){
-                    // action is the other pacmen on the player team have already done
-                    temp = actions; 
-                    // adds the cardinal direction to current players pac postion, needs to change to handle walls
-                    temp = temp + (directions[i] + curplayer[curplayer.Count -1].Location ). ToString();
-
-                    getKids.Add(temp);
-                    
-                }
-
-                temp = actions;
-                // speed move
-                temp = temp + "SPEED";
-                
-                // switch is the 3 types we can go to we cycle through the options
-                for (int i =0; i < switches; i++){
-                    temp = actions;
-                    // since we cant switch to out own type we ignore that case
-                    if( curplayer[curplayer.Count -1].GetType.ToString() != switches[i] ){
-                        temp = temp + "SWITCH " + switches[i];
-                        getKids.Add(temp);
-                    }
-                }
-                // return doent matter it just sends us back to previous pac to do its next action option
-                return true;
-
-            }
-
-        string temp = "";
-        for (int i =0; i < directions.Length; i++){
-            temp = actions; 
-            temp = temp + (directions[i] + curplayer[curplayer.Count - h ].Location ). ToString();
-            //makes a recurisve call to next pacman to loop through their options  
-            return getMovesHelper(h-1,  curplayer, temp);
-            
-        }
-        temp = actions;
-        temp = temp + "SPEED";
-        //makes a recurisve call to next pacman to loop through their options  
-        return getMovesHelper(h-1,  curplayer, temp);
-        
-        for (int i =0; i < switches; i++){
-            temp = actions;
-            if( curplayer[curplayer.Count -h].GetType.ToString() != switches[i] ){
-                temp = temp + "SWITCH " + switches[i];
-                //makes a recurisve call to next pacman to loop through their options  
-                return getMovesHelper(h-1,  curplayer, temp);
-            }
-        }
-
         }
         
         
