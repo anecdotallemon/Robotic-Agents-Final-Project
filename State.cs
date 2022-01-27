@@ -88,19 +88,32 @@ namespace Robotic_Agents_Final_Project
         }
 
         public void InitializeForTurn() { // to capture the new information
-            // mostly just has the scores...
+            // mostly just has the scores... but also will add alive pacs to the list of MyPacs/Enemies and turn order/players
+
             var ParserReturn = Parser.ParseInput();
             PlayerScore = ParserReturn.MyScore;
             OpponentScore = ParserReturn.OpponentScore;
             
-            // TODO: loop through pacs - set score at those coords to be 0 and check if any pacs are dead
             Pacman[] TempMen = ParserReturn.pacmans;
-            
-            
+            foreach (Pacman pac in TempMen) {
+				_scores[pac.Location.x, pac.Location.y] = 0;
+				if (!pac.Type.ToString() == "DEAD") {
+					if (pac.IsOurPlayer) {
+						MyPacs.Add(pac);
+						_turnOrder.Add(pac);
+						_allPlayers.Add(pac);
+					}
+					else {
+						Enemies.Add(pac);
+						_turnOrder.Add(pac);
+						_allPlayers.Add(pac);
+					}
+				}
+			}
             
             // TODO: Handle visible pellets
             Pellet[] TempPellets = ParserReturn.pellets;
-
+			
             
 
             throw new NotImplementedException();
