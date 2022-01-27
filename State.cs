@@ -108,6 +108,14 @@ namespace Robotic_Agents_Final_Project
 					}
 				}
 			}
+
+			foreach (Pacman pac in MyPacs) {
+				_turnOrder.Add(pac);
+			}
+
+			foreach (Pacman pac in Enemies) {
+				_turnOrder.Add(pac);
+			}
             
             Pellet[] TempPellets = ParserReturn.pellets;
 			foreach (Pellet pellet in TempPellets) {
