@@ -92,7 +92,7 @@ namespace Robotic_Agents_Final_Project
         }
         
         /// <summary>
-        /// given a move, make the current player take that move, update the state as necessary (including checking for kills), and put the current player back at the end of the queue
+        /// given a move, make the current player take that move, update the state as necessary (including checking for kills, removing pellets, setting player types, etc), and put the current player back at the end of the queue
         /// </summary>
         /// <param name="move"></param>
         /// <exception cref="NotImplementedException"></exception>
