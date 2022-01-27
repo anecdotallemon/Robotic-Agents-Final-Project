@@ -90,7 +90,12 @@ namespace Robotic_Agents_Final_Project
         public Pacman GetCurrentPlayer() {
             return _turnOrder.Peek();
         }
-
+        
+        /// <summary>
+        /// given a move, make the current player take that move, update the state as necessary (including checking for kills), and put the current player back at the end of the queue
+        /// </summary>
+        /// <param name="move"></param>
+        /// <exception cref="NotImplementedException"></exception>
         public void MakeMove(GameAction move) {
             throw new NotImplementedException();
         }
