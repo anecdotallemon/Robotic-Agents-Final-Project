@@ -76,6 +76,7 @@ namespace Robotic_Agents_Final_Project
             for (int i = 0; i < Width; i++) {
                 for (int j = 0; j < Height; j++) {
                     stateCopy._walls[i, j] = _walls[i,j];
+                    stateCopy._scores[i, j] = _scores[i, j];
                 }
             }
 
@@ -108,33 +109,14 @@ namespace Robotic_Agents_Final_Project
         /// <param name="move"></param>
         /// <exception cref="NotImplementedException"></exception>
         public void MakeMove(GameAction move) {
-            Pacman turnPac = _turnOrder.Peek();
-            if(turnPac.IsOurPlayer){
-                // removes old Pac info from Allplayers, MyPacs and turnOrder then adds in the new Pac info
-                this._allPlayers.Remove(turnPac);
-                this.MyPacs.Remove(turnPac);
-                this._turnOrder.Dequeue();
-                turnPac.Location = move.gameActions;
-                this._allPlayers.Add(turnPac);
-                this.MyPacs.Add(turnPac);
-                this._turnOrder.Enqueue(turnPac);
-                // modify player score here and remove pellet from score board if necesarry 
-                
-
-            }
-            else{
-                 // removes old Pac info from Allplayers, Enemies and turnOrder then adds in the new Pac info
-                this._allPlayers.Remove(turnPac);
-                this.Enemies.Remove(turnPac);
-                this._turnOrder.Dequeue();
-                turnPac.Location = move.gameActions;
-                this._allPlayers.Add(turnPac);
-                this.Enemies.Add(turnPac);
-                this._turnOrder.Enqueue(turnPac);
-                // modify player score here and remove pellet from score board if necesarry 
-                
-            }
+            Pacman turnPac = _turnOrder.Dequeue();
+            turnPac.Location = move.gameActions;
+            _turnOrder.Enqueue(turnPac);
             
+            // modify player score here and remove pellet from score board if necesarry 
+
+            throw new NotImplementedException();
+
         }
 
 
