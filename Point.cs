@@ -40,11 +40,23 @@ namespace Robotic_Agents_Final_Project {
             public int Mag2() {
                 return x * x + y * y;
             }
+
+            public Point Wrap(int width, int height) {
+                var x1 = x;
+                while (x1 < 0) x1 += width;
+                var y1 = y;
+                while (y1 < 0) y1 += height;
+
+                x1 %= width;
+                y1 %= height;
+
+                return new Point(x1, y1);
+            }
             
             public override string ToString() {
                 return "(" + x + ", " + y + ")";
             }
-            
+
             /// <summary>
             /// Whether this <c>Point</c> is within the boundaries of the game.
             /// </summary>

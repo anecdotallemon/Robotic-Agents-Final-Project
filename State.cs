@@ -93,6 +93,8 @@ namespace Robotic_Agents_Final_Project
         
         /// <summary>
         /// given a move, make the current player take that move, update the state as necessary (including checking for kills, removing pellets, setting player types, etc), and put the current player back at the end of the queue
+        /// if it's a new location, the current player will move towards that location
+        /// if it's a type change or speed boost (and is valid), the player will move towards their existing target but have that parameter changed
         /// should ONLY be used for predictive stuff, not for actual game updates
         /// </summary>
         /// <param name="move"></param>
