@@ -79,7 +79,7 @@ namespace Robotic_Agents_Final_Project
             return stateCopy;
         }
 
-        public void InitializeForFirstTurn() {
+        public void InitializeForFirstTurn() { // this was necessary for my original tron game -- im not sure if it will be here. idk.
             throw new NotImplementedException();
         }
 
