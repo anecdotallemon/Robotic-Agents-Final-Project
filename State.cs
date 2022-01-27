@@ -164,6 +164,9 @@ namespace Robotic_Agents_Final_Project
         }
 
         }
+        
+        
+        
         public int EstimateUtility() {
             // parallel flood fill measuring available pellets
             throw new NotImplementedException();
@@ -171,7 +174,42 @@ namespace Robotic_Agents_Final_Project
         
         // kill current player
         public void KillCurrent() {
-            throw new NotImplementedException();
+            Kill(_turnOrder.Peek());
+        }
+        
+        void Kill(Pacman victim) {
+            // remove from enemies or throw an error
+            // remove from turn order
+            // mark dead
+        
+            if (victim.Alive == false) return; // silently return if already dead
+            if (!_allPlayers.Contains(victim)) throw new ArgumentException("Player does not exist");
+
+            if (victim.IsOurPlayer) {
+                MyPacs.Remove(victim);
+            }
+            else {
+                Enemies.Remove(victim);
+            }
+        
+            // remove from turn order -- a bit fucky since it's a queue
+            Pacman currentPlayer = _turnOrder.Peek();
+
+            if (Equals(currentPlayer, victim)) {
+                _turnOrder.Dequeue();
+            }
+            else {
+                // loop through queue until found
+                Pacman temp = _turnOrder.Dequeue();
+                while (!Equals(temp, victim)) {
+                    _turnOrder.Enqueue(temp);
+                    temp = _turnOrder.Dequeue();
+                }
+                // end the loop without requeueing temp to remove it
+            }
+
+            victim.Kill();
+
         }
 
     }

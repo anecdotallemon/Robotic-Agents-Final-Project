@@ -6,7 +6,7 @@ namespace Robotic_Agents_Final_Project {
 
         public Point Location;
         public bool IsOurPlayer = false;
-        
+
         // Pac types include rock, paper, scissors
         public PacType Type;
         public int PacId;
