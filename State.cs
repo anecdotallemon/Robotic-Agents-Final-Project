@@ -35,6 +35,9 @@ namespace Robotic_Agents_Final_Project
             for (int i = 0; i < Width; i++) {
                 for (int j = 0; j < Height; j++) {
                     _walls[i, j] = walls[i,j];
+                    if (!walls[i, j]) {
+                        _scores[i, j] = 1;
+                    }
                 }
             }
             
@@ -80,6 +83,11 @@ namespace Robotic_Agents_Final_Project
         }
 
         public void InitializeForFirstTurn() { // this was necessary for my original tron game -- im not sure if it will be here. idk.
+            throw new NotImplementedException();
+        }
+
+        public void updatePoints()
+        {
             throw new NotImplementedException();
         }
 
@@ -152,7 +160,11 @@ namespace Robotic_Agents_Final_Project
         
         
         public int EstimateUtility() {
-            // parallel flood fill measuring available pellets
+            // parallel flood fill measuring available pellets, ++
+            // if enemy pac in sight is of the "weaker" type to our pac, ++
+            // if enemy pac in sight is same type, ==
+            // if enemy pac in sight is stronger type, -- (run away!) possibly implement here if it's close enough to change?
+            // if a friendly pac is in sight, -- (we want pacs to be further away) (this may be duplicated by flood fill)
             throw new NotImplementedException();
         }
         
