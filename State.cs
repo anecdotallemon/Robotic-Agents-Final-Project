@@ -93,6 +93,7 @@ namespace Robotic_Agents_Final_Project
         
         /// <summary>
         /// given a move, make the current player take that move, update the state as necessary (including checking for kills, removing pellets, setting player types, etc), and put the current player back at the end of the queue
+        /// should ONLY be used for predictive stuff, not for actual game updates
         /// </summary>
         /// <param name="move"></param>
         /// <exception cref="NotImplementedException"></exception>
@@ -108,15 +109,10 @@ namespace Robotic_Agents_Final_Project
             foreach (Direction d in Direction.Directions) {
                 var newPoint = d.ApplyToPoint(turnPac.Location).Wrap(Width, Height);
                 if (!IsWall(d.ApplyToPoint(turnPac.Location).Wrap(Width, Height))) {
-                    actions.Add();
+                    actions.Add(newPoint);
                 }
             }
-
-            {
-                if(!(_direction[i] + turnPac.Location).IsOutOfBounds()){
-                    actions.Add(_direction[i] + turnPac.Location);
-                }
-            }
+            
             GameAction[] kids = new GameAction[actions.Count];
             for (int j = 0; j< actions.Count; j++){
                 kids[j] = new GameAction(actions[j]);
@@ -124,9 +120,7 @@ namespace Robotic_Agents_Final_Project
 
             return kids;
 
-           
         }
-        
         
         
         public int EstimateUtility() {
@@ -170,9 +164,7 @@ namespace Robotic_Agents_Final_Project
         
                     // add relevant neighbors to queue
                     foreach (Direction d in Direction.Directions) {
-                        Point neighbor = d.ApplyToPoint(p);
-
-                        neighbor = new Point((neighbor.x + Width) % Width, (neighbor.y + Height) % Height); // wrap around because it's fuckin pac man
+                        Point neighbor = d.ApplyToPoint(p).Wrap(Width, Height);
                             
                         if (!neighbor.IsOutOfBounds() && !IsWall(neighbor) && !cellsUpdated[neighbor.x, neighbor.y]) {
 
