@@ -12,7 +12,7 @@ namespace Robotic_Agents_Final_Project {
         public int PacId;
 
         private int _speedTurnsLeft = 0; // unused in wood league
-        private int _abilityCooldown = 0; // unused in wood league
+        public int _abilityCooldown = 0; // unused in wood league
 
         public bool Alive { get; private set; } = true;
 
@@ -51,6 +51,8 @@ namespace Robotic_Agents_Final_Project {
         public void Kill() {
             Alive = false;
         }
+
+       
         #endregion
         
         #region bookkeeping
@@ -97,6 +99,18 @@ namespace Robotic_Agents_Final_Project {
             {Scissors.ToString(), Scissors},
             {Paper.ToString(), Paper}
         };
+        public static readonly Dictionary<PacType, int> PacTypeToNum = new Dictionary< PacType, int>() {
+            {Rock, 0},
+            {Paper, 1},
+            {Scissors, 2}
+           
+        };
+        public static readonly Dictionary<int ,PacType> NumToPacType = new Dictionary<int, PacType>() {
+            {0,Rock},
+            {1,Paper},
+            {2,Scissors}
+           
+        };
 
         private readonly string _string;
 
@@ -107,5 +121,26 @@ namespace Robotic_Agents_Final_Project {
         public override string ToString() {
             return _string;
         }
+
+
+    }
+    public class SwicthPac{
+            // pick the pacType that is prey or praditor to the given pac
+        public static readonly Dictionary<String, int> FromString = new Dictionary<String, int>() {
+            {"PREDATOR", 1},
+            {"PREY", -1},
+        };
+
+       public SwicthPac(){}
+
+       public static PacType SwicthOptions(PacType currType, string foodChain){
+           int offset = FromString[foodChain];
+           int newPacNum = (PacType.PacTypeToNum[currType] + offset) % (PacType.FromString.Count);
+           return PacType.NumToPacType[newPacNum];
+
+
+       }  
+
+
     }
 }

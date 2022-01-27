@@ -235,8 +235,8 @@ namespace Robotic_Agents_Final_Project
 
         }
 
-
-        public GameAction[] GetMoves() {
+        //
+        public List<GameAction> GetMoves() {
             Pacman turnPac = _turnOrder.Peek();
             List<Point> actions = new List<Point>();
 
@@ -247,9 +247,14 @@ namespace Robotic_Agents_Final_Project
                 }
             }
             
-            GameAction[] kids = new GameAction[actions.Count];
+            List<GameAction>kids; 
             for (int j = 0; j< actions.Count; j++){
-                kids[j] = new GameAction(actions[j]);
+                kids.Add(new GameAction(actions[j], "MOVE", turnPac.Type));
+            }
+            if(turnPac._abilityCooldown == 0){
+                    kids.Add(new GameAction(turnPac.Location, "SPEED", turnPac.Type));
+                    kids.Add(new GameAction(turnPac.Location, "SWITCH", SwicthPac.SwicthOptions(turnPac.Type, "PREY")));
+                    kids.Add(new GameAction(turnPac.Location, "SWITCH", SwicthPac.SwicthOptions(turnPac.Type, "PREDATOR")));
             }
 
             return kids;
