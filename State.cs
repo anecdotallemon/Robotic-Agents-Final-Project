@@ -73,6 +73,7 @@ namespace Robotic_Agents_Final_Project
             for (int i = 0; i < Width; i++) {
                 for (int j = 0; j < Height; j++) {
                     stateCopy._walls[i, j] = _walls[i,j];
+                    stateCopy._scores[i, j] = _scores[i, j];
                 }
             }
 
