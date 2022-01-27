@@ -8,7 +8,7 @@ namespace Robotic_Agents_Final_Project
     {
 
         // one list for our pacs and one list for enemies, since we may want to keep track of where we ares
-        public List <Pacman> MyPacs { get; private set; }
+        public List<Pacman> MyPacs { get; private set; }
         public List<Pacman> Enemies { get; private set; }
         public Point[,] GameBoard;
 
@@ -17,12 +17,16 @@ namespace Robotic_Agents_Final_Project
 
         private bool[,] _walls; // true at wall, false at open space
         private int[,] _scores; // 0 at blank, 1 at pellet, 10 at super pellet
+
+        private int PlayerScore;
+        private int OpponentScore;
         
         public readonly int Width;
         public readonly int Height;
 
         /// <summary>
-        /// Constructs a new state with the given wall setup. Copies the wall array to a new spot in memory
+        /// Constructs a new state with the given wall setup. Copies the wall array to a new spot in memory.
+        /// Also initializes score to 1 at any empty spot.
         /// </summary>
         /// <param name="walls">array of bools with true at wall locations</param>
         public State(bool[,] walls) {
@@ -83,7 +87,22 @@ namespace Robotic_Agents_Final_Project
             return stateCopy;
         }
 
-        public void InitializeForFirstTurn() { // this was necessary for my original tron game -- im not sure if it will be here. idk.
+        public void InitializeForTurn() { // to capture the new information
+            // mostly just has the scores...
+            var ParserReturn = Parser.ParseInput();
+            PlayerScore = ParserReturn.MyScore;
+            OpponentScore = ParserReturn.OpponentScore;
+            
+            // TODO: loop through pacs - set score at those coords to be 0 and check if any pacs are dead
+            Pacman[] TempMen = ParserReturn.pacmans;
+            
+            
+            
+            // TODO: Handle visible pellets
+            Pellet[] TempPellets = ParserReturn.pellets;
+
+            
+
             throw new NotImplementedException();
         }
 

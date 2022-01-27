@@ -31,7 +31,7 @@ namespace Robotic_Agents_Final_Project {
         /// 
         /// </summary>
         /// <returns>tuple of: our score, opponent score, visible pacmen, visible pellets</returns>
-        public static (int, int, Pacman[], Pellet[]) ParseInput() {
+        public static (int myScore, int opponentScore, Pacman[] pacmans, Pellet[] pellets) ParseInput() {
 
             string[] inputs = Console.ReadLine().Split(' ');
             int myScore = int.Parse(inputs[0]);
