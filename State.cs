@@ -88,8 +88,6 @@ namespace Robotic_Agents_Final_Project
         }
 
         public void InitializeForTurn() { // to capture the new information
-            // mostly just has the scores... but also will add alive pacs to the list of MyPacs/Enemies and turn order/players
-
             var ParserReturn = Parser.ParseInput();
             PlayerScore = ParserReturn.MyScore;
             OpponentScore = ParserReturn.OpponentScore;
@@ -111,9 +109,10 @@ namespace Robotic_Agents_Final_Project
 				}
 			}
             
-            // TODO: Handle visible pellets
             Pellet[] TempPellets = ParserReturn.pellets;
-			
+			foreach (Pellet pellet in TempPellets) {
+				_scores[pellet.Location.x, pellet.Location.y] = pellet.Score;
+			}
             
 
             throw new NotImplementedException();
