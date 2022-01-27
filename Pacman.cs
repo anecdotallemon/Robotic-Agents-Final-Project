@@ -88,9 +88,9 @@ namespace Robotic_Agents_Final_Project {
 
     public class PacType {
 
-        public static PacType Rock = new PacType("ROCK");
-        public static PacType Scissors = new PacType("SCISSORS");
-        public static PacType Paper = new PacType("PAPER");
+        public static readonly PacType Rock = new PacType("ROCK");
+        public static readonly PacType Scissors = new PacType("SCISSORS");
+        public static readonly PacType Paper = new PacType("PAPER");
 
         public static readonly Dictionary<String, PacType> FromString = new Dictionary<string, PacType>() {
             {Rock.ToString(), Rock},

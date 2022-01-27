@@ -172,6 +172,75 @@ namespace Robotic_Agents_Final_Project
             throw new NotImplementedException();
         }
         
+        // how many more points our pacs can access vs enemy pacs
+        private int FloodFill() {
+            
+            Queue<Point>[] cellsToUpdate = new Queue<Point>[_turnOrder.Count];
+            HashSet<Point>[] cellsToUpdateSet = new HashSet<Point>[_turnOrder.Count]; // used to check for duplicates in queue
+            bool[,] cellsUpdated = new bool[Width, Height];
+
+            bool stillCellsToUpdate = true;
+            
+            Pacman[] turnOrderCopy = _turnOrder.ToArray();
+            
+            int netPoints = 0;
+            
+            for (int i = 0; i < _turnOrder.Count; i++) {
+                Point start = turnOrderCopy[i].Location;
+                cellsToUpdate[i].Enqueue(start);
+                cellsToUpdateSet[i].Add(start);
+            }
+
+    
+            // while there are still adjacent cells to update
+            while (stillCellsToUpdate) {
+
+                stillCellsToUpdate = false;
+
+                for (int i = 0; i < turnOrderCopy.Length; i++) {
+                    // remove the next point
+                    Point p = cellsToUpdate[i].Dequeue();
+                    cellsToUpdateSet[i].Remove(p);
+                    
+                    if (cellsUpdated[p.x, p.y]) break;
+
+                    cellsUpdated[p.x, p.y] = true;
+        
+                    // add relevant neighbors to queue
+                    foreach (Direction d in Direction.Directions) {
+                        Point neighbor = d.ApplyToPoint(p);
+
+                        neighbor = new Point((neighbor.x + Width) % Width, (neighbor.y + Height) % Height); // wrap around because it's fuckin pac man
+                            
+                        if (!neighbor.IsOutOfBounds() && !IsWall(neighbor) && !cellsUpdated[neighbor.x, neighbor.y]) {
+
+                            bool isPlannedToUpdate = false;
+
+                            for (int j = 0; j < turnOrderCopy.Length; j++) {
+                                isPlannedToUpdate |= cellsToUpdateSet[j].Contains(neighbor);
+                            }
+
+                            if (!isPlannedToUpdate) {
+                                cellsToUpdate[i].Enqueue(neighbor);
+                                cellsToUpdateSet[i].Add(neighbor);
+                            }
+                        }
+                    }
+
+                    netPoints += _scores[p.x, p.y] * (turnOrderCopy[i].IsOurPlayer ? 1 : -1);
+
+                    stillCellsToUpdate |= cellsToUpdateSet.Length > 0;
+                }
+
+            }
+            
+            return netPoints;
+        }
+
+        public bool IsWall(Point p) {
+            return _walls[p.x, p.y];
+        }
+        
         // kill current player
         public void KillCurrent() {
             Kill(_turnOrder.Peek());
