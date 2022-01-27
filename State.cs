@@ -93,6 +93,7 @@ namespace Robotic_Agents_Final_Project
             OpponentScore = ParserReturn.OpponentScore;
             
             Pacman[] TempMen = ParserReturn.pacmans;
+			Pellet[] TempPellets = ParserReturn.pellets;
             foreach (Pacman pac in TempMen) {
 				_scores[pac.Location.x, pac.Location.y] = 0;
 				if (!pac.Type.ToString() == "DEAD") {
@@ -102,6 +103,7 @@ namespace Robotic_Agents_Final_Project
 						_allPlayers.Add(pac);
 					}
 					else {
+						updateVisiblePellets(pac.Location.x, pac.Location.y, tempPellets);
 						Enemies.Add(pac);
 						_turnOrder.Add(pac);
 						_allPlayers.Add(pac);
@@ -109,22 +111,93 @@ namespace Robotic_Agents_Final_Project
 				}
 			}
 
+			// initializing turn order
 			foreach (Pacman pac in MyPacs) {
 				_turnOrder.Add(pac);
 			}
-
 			foreach (Pacman pac in Enemies) {
 				_turnOrder.Add(pac);
 			}
             
+			// initializing visible pellets, to try to catch any big pellets that escaped the updateVisiblePellets
             Pellet[] TempPellets = ParserReturn.pellets;
 			foreach (Pellet pellet in TempPellets) {
 				_scores[pellet.Location.x, pellet.Location.y] = pellet.Score;
 			}
-            
-
-            throw new NotImplementedException();
         }
+
+
+		private void updateVisiblePellets(int tempX, int tempY, Pellet[] tempPellets) {
+			// north
+			if (tempY > 0) {
+				if (!_walls[tempX, tempY - 1]) {
+					// if the score isn't 0, see if it needs to be updated
+					if (_score[tempX, tempY - 1] != 0) {
+						foreach (Pellet p in tempPellets) {
+							if (p.Location.x == tempX && p.Location.y == tempY - 1) {
+								_score[tempX, tempY - 1] = p.Score;
+							}
+							else {
+								_score[tempX, tempY - 1] = 0;
+							}
+						}
+					}
+					return updateDirectionally(tempX, tempY - 1);
+				}
+			}
+			// south
+			if (tempY < Height) {
+				if (!_walls[tempX, tempY + 1]) {
+					// if the score isn't 0, see if it needs to be updated
+					if (_score[tempX, tempY + 1] != 0) {
+						foreach (Pellet p in tempPellets) {
+							if (p.Location.x == tempX && p.Location.y == tempY + 1) {
+								_score[tempX, tempY + 1] = p.Score;
+							}
+							else {
+								_score[tempX, tempY + 1] = 0;
+							}
+						}
+					}
+					return updateDirectionally(tempX, tempY + 1);
+				}
+			}
+			// east
+			if (tempX < Width) {
+				if (!_walls[tempX + 1, tempY]) {
+					// if the score isn't 0, see if it needs to be updated
+					if (_score[tempX + 1, tempY] != 0) {
+						foreach (Pellet p in tempPellets) {
+							if (p.Location.x == tempX + 1 && p.Location.y == tempY) {
+								_score[tempX + 1, tempY] = p.Score;
+							}
+							else {
+								_score[tempX + 1, tempY] = 0;
+							}
+						}
+					}
+					return updateDirectionally(tempX + 1, tempY);
+				}
+			}
+			// west
+			if (tempX > 0) {
+				if (!_walls[tempX - 1, tempY]) {
+					// if the score isn't 0, see if it needs to be updated
+					if (_score[tempX - 1, tempY] != 0) {
+						foreach (Pellet p in tempPellets) {
+							if (p.Location.x == tempX - 1 && p.Location.y == tempY) {
+								_score[tempX - 1, tempY] = p.Score;
+							}
+							else {
+								_score[tempX - 1, tempY] = 0;
+							}
+						}
+					}
+					return updateDirectionally(tempX - 1, tempY);
+				}
+			}
+		}
+
 
         public void updatePoints()
         {
