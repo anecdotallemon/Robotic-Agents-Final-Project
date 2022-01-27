@@ -91,7 +91,11 @@ namespace Robotic_Agents_Final_Project
             var ParserReturn = Parser.ParseInput();
             PlayerScore = ParserReturn.MyScore;
             OpponentScore = ParserReturn.OpponentScore;
-            
+
+			MyPacs.Clear();
+			Enemies.Clear();
+			_turnOrder.Clear();
+
             Pacman[] TempMen = ParserReturn.pacmans;
 			Pellet[] TempPellets = ParserReturn.pellets;
             foreach (Pacman pac in TempMen) {
