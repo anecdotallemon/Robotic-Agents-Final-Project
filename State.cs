@@ -88,7 +88,7 @@ namespace Robotic_Agents_Final_Project
         }
 
         public Pacman GetCurrentPlayer() {
-            throw new NotImplementedException();
+            return _turnOrder.Peek();
         }
 
         public void MakeMove(GameAction move) {
