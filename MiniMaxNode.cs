@@ -61,12 +61,14 @@ class MiniMaxNode {
     
     // separated into separate function purely for profiling purposes
     private void MakeChildren() {
-        if(_state.GetCurrentPlayer().IsOurPlayer){
-        GameAction[] availableMoves = _state.GetMoves(_state.MyPacs.Count, _state.MyPacs);
+
+        GameAction[] availableMoves;
+        
+        if (_state.GetCurrentPlayer().IsOurPlayer){
+            availableMoves = _state.GetMoves(_state.MyPacs.Count, _state.MyPacs);
         }
         else{
-            
-            GameAction[] availableMoves = _state.GetMoves(_state.Enemies.Count,_state.Enemies );
+            availableMoves = _state.GetMoves(_state.Enemies.Count,_state.Enemies);
         }
         _children = new Dictionary<GameAction, MiniMaxNode>();
 

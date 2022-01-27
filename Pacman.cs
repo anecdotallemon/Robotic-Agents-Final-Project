@@ -8,7 +8,7 @@ namespace Robotic_Agents_Final_Project {
         public bool IsOurPlayer = false;
         
         // Pac types include rock, paper, scissors
-        public PacType _type;
+        public PacType Type;
         public int PacId;
 
         private int _speedTurnsLeft = 0; // unused in wood league
@@ -30,7 +30,7 @@ namespace Robotic_Agents_Final_Project {
             Location = new Point(x, y);
             PacId = pacId;
             IsOurPlayer = isOurs;
-            _type = PacType.FromString[typeId];
+            Type = PacType.FromString[typeId];
             _speedTurnsLeft = speedLeft;
             _abilityCooldown = cooldown;
         }
@@ -86,7 +86,7 @@ namespace Robotic_Agents_Final_Project {
 
     }
 
-    class PacType {
+    public class PacType {
 
         public static PacType Rock = new PacType("ROCK");
         public static PacType Scissors = new PacType("SCISSORS");
