@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Robotic_Agents_Final_Project {
     public class Pacman {
@@ -9,6 +10,9 @@ namespace Robotic_Agents_Final_Project {
         // Pac types include rock, paper, scissors
         private PacType _type;
         public int PacId;
+
+        private int _speedTurnsLeft = 0; // unused in wood league
+        private int _abilityCooldown = 0; // unused in wood league
 
         public bool Alive { get; private set; } = true;
 
@@ -21,6 +25,15 @@ namespace Robotic_Agents_Final_Project {
             Location = p;
             PacId = pacId;
         }
+
+        public Pacman(int x, int y, int pacId, bool isOurs, string typeId, int speedLeft, int cooldown) {
+            Location = new Point(x, y);
+            PacId = pacId;
+            IsOurPlayer = isOurs;
+            _type = PacType.FromString[typeId];
+            _speedTurnsLeft = speedLeft;
+            _abilityCooldown = cooldown;
+        }
         
         #region gamelogic
         // returns previous position
@@ -28,7 +41,7 @@ namespace Robotic_Agents_Final_Project {
             throw new NotImplementedException();
         }
         
-        // returns -1 if loses, 0 if tie, 1 if loses
+        // returns -1 if loses, 0 if tie, 1 if wins
         // does NOT call Kill() -- that should only be called by parent state!
         public bool Combat(Pacman other) {
             throw new NotImplementedException();
@@ -73,9 +86,26 @@ namespace Robotic_Agents_Final_Project {
 
     }
 
-    enum PacType {
-        Rock,
-        Paper,
-        Scissors
+    class PacType {
+
+        public static PacType Rock = new PacType("ROCK");
+        public static PacType Scissors = new PacType("SCISSORS");
+        public static PacType Paper = new PacType("PAPER");
+
+        public static readonly Dictionary<String, PacType> FromString = new Dictionary<string, PacType>() {
+            {Rock.ToString(), Rock},
+            {Scissors.ToString(), Scissors},
+            {Paper.ToString(), Paper}
+        };
+
+        private readonly string _string;
+
+        private PacType(String s) {
+            _string = s;
+        }
+
+        public override string ToString() {
+            return _string;
+        }
     }
 }
