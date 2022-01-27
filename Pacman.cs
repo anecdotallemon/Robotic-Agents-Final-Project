@@ -8,7 +8,7 @@ namespace Robotic_Agents_Final_Project {
         public bool IsOurPlayer = false;
         
         // Pac types include rock, paper, scissors
-        private PacType _type;
+        public PacType _type;
         public int PacId;
 
         private int _speedTurnsLeft = 0; // unused in wood league

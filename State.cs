@@ -95,10 +95,75 @@ namespace Robotic_Agents_Final_Project
             throw new NotImplementedException();
         }
 
-        public GameAction[] GetMoves() {
-            throw new NotImplementedException();
+
+        public GameAction[] GetMoves(int h, List<Pacman> curplayer) {
+             // sends over to recursive helper function
+            getMovesHelper(h,  curplayer, "");
+            // copies all values getKids which has all the actions a player can make 
+            GameAction[] kids = new GameAction[getKids.Count];
+            for(int i =0; i < getKids.Count; i++){
+                kids[i] = new GameAction(getKids[i]);
+            }
+            return kids;
+           
+        }
+        public Boolean getMovesHelper(int h,  List<Pacman> curplayer, string actions){
+            // when h is 1 we are at the last pac on list
+             if(h ==1 ){
+
+                 string temp = "";
+                // loops through directions which contains the 4 cartinal directions 
+                for (int i =0; i < directions.Length; i++){
+                    // action is the other pacmen on the player team have already done
+                    temp = actions; 
+                    // adds the cardinal direction to current players pac postion, needs to change to handle walls
+                    temp = temp + (directions[i] + curplayer[curplayer.Count -1].Location ). ToString();
+
+                    getKids.Add(temp);
+                    
+                }
+
+                temp = actions;
+                // speed move
+                temp = temp + "SPEED";
+                
+                // switch is the 3 types we can go to we cycle through the options
+                for (int i =0; i < switches; i++){
+                    temp = actions;
+                    // since we cant switch to out own type we ignore that case
+                    if( curplayer[curplayer.Count -1].GetType.ToString() != switches[i] ){
+                        temp = temp + "SWITCH " + switches[i];
+                        getKids.Add(temp);
+                    }
+                }
+                // return doent matter it just sends us back to previous pac to do its next action option
+                return true;
+
+            }
+
+        string temp = "";
+        for (int i =0; i < directions.Length; i++){
+            temp = actions; 
+            temp = temp + (directions[i] + curplayer[curplayer.Count - h ].Location ). ToString();
+            //makes a recurisve call to next pacman to loop through their options  
+            return getMovesHelper(h-1,  curplayer, temp);
+            
+        }
+        temp = actions;
+        temp = temp + "SPEED";
+        //makes a recurisve call to next pacman to loop through their options  
+        return getMovesHelper(h-1,  curplayer, temp);
+        
+        for (int i =0; i < switches; i++){
+            temp = actions;
+            if( curplayer[curplayer.Count -h].GetType.ToString() != switches[i] ){
+                temp = temp + "SWITCH " + switches[i];
+                //makes a recurisve call to next pacman to loop through their options  
+                return getMovesHelper(h-1,  curplayer, temp);
+            }
         }
 
+        }
         public int EstimateUtility() {
             // parallel flood fill measuring available pellets
             throw new NotImplementedException();
