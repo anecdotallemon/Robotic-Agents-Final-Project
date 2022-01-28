@@ -221,6 +221,7 @@ namespace Robotic_Agents_Final_Project
             
             if(move.actionType.Equals( ActionType.FromString["MOVE "]) ){
             turnPac.Location = move.gameActions;
+            // decreses ability cool down after each move 
                 if(turnPac._abilityCooldown !=0 ){
                     turnPac._abilityCooldown =  turnPac._abilityCooldown  -1;
                 }
@@ -239,10 +240,6 @@ namespace Robotic_Agents_Final_Project
             }
             _turnOrder.Enqueue(turnPac);
             
-            // modify player score here and remove pellet from score board if necesarry 
-
-            throw new NotImplementedException();
-
         }
 
         //
