@@ -198,7 +198,9 @@ public static class SwitchPac{
            int offset = FromString[foodChain];
            // switched pacType to be based around mod math, the prey type is always 1 below and the preditor is 1 above
            // semi flexiable if we add more pacTypes
-           int newPacNum = (currType.GetIntCode() + offset) % (PacType.FromString.Count);
+           
+           // subtract one because one pactype is for dead ones, which we dont want to include
+           int newPacNum = (currType.GetIntCode() + offset + (PacType.FromString.Count - 1)) % (PacType.FromString.Count - 1);
            // return a PacType
            return PacType.NumToPacType[newPacNum];
        }  

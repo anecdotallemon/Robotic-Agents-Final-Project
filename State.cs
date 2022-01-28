@@ -107,7 +107,7 @@ namespace Robotic_Agents_Final_Project
             foreach (Pacman pac in pacs) {
 				_scores[pac.Location.x, pac.Location.y] = 0;
 				
-				if (pac.Type == PacType.Dead) {
+				if (pac.Type != PacType.Dead) {
 					if (pac.IsOurPlayer) {
 						MyPacs.Add(pac);
 						_allPlayers.Add(pac);
@@ -152,7 +152,7 @@ namespace Robotic_Agents_Final_Project
 
             while (!IsWall(newPoint)) {
                 visiblePoints.Add(newPoint);
-                newPoint = d.ApplyToPoint(newPoint);
+                newPoint = d.ApplyToPoint(newPoint).Wrap(Width, Height);
             }
 
         }
@@ -319,6 +319,8 @@ namespace Robotic_Agents_Final_Project
             int netPoints = 0;
             
             for (int i = 0; i < _turnOrder.Count; i++) {
+                cellsToUpdate[i] = new Queue<Point>();
+                cellsToUpdateSet[i] = new HashSet<Point>();
                 Point start = turnOrderCopy[i].Location;
                 cellsToUpdate[i].Enqueue(start);
                 cellsToUpdateSet[i].Add(start);
@@ -336,7 +338,7 @@ namespace Robotic_Agents_Final_Project
                                                           i, ref netPoints);
                     
                     // fast ones get to go again, because they move faster
-                    if (turnOrderCopy[i].SpeedTurnsLeft > 0) {
+                    if (turnOrderCopy[i].SpeedTurnsLeft > 0 && stillCellsToUpdate) {
                         stillCellsToUpdate |= FloodFillHelper(turnOrderCopy, cellsToUpdate, cellsToUpdateSet, cellsUpdated,
                                                               i, ref netPoints);
                         // this WILL change the speed turns remaining of the original pac, but...
@@ -370,7 +372,8 @@ namespace Robotic_Agents_Final_Project
                 if (!IsWall(neighbor) && !cellsUpdated[neighbor.x, neighbor.y]) {
 
                     bool isPlannedToUpdate = false;
-
+                    
+                    // ignore elements that somebody else already got to first
                     for (int j = 0; j < turnOrderCopy.Length; j++) {
                         isPlannedToUpdate |= cellsToUpdateSet[j].Contains(neighbor);
                     }
