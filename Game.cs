@@ -12,8 +12,8 @@ namespace Robotic_Agents_Final_Project {
             // game loop
             while (true)
             {
-                State.InitializeForTurn();
-                List<Pacman> playerPacs = State.MyPacs;
+                state.InitializeForTurn();
+                List<Pacman> playerPacs = state.MyPacs;
 
                 foreach (Pacman p in playerPacs) {
                     // get best game move, add it to the list to be added to the string of all the moves
