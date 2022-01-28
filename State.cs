@@ -148,7 +148,7 @@ namespace Robotic_Agents_Final_Project
 
 		private void GetVisiblePoints(Point start, Direction d, HashSet<Point> visiblePoints) {
 
-            Point newPoint = d.ApplyToPoint(start);
+            Point newPoint = d.ApplyToPoint(start).Wrap(Width, Height);
 
             while (!IsWall(newPoint)) {
                 visiblePoints.Add(newPoint);

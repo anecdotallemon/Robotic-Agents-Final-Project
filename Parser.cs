@@ -75,7 +75,7 @@ namespace Robotic_Agents_Final_Project {
             // SWITCH pacId pactype
 
             if (action.ActionType == ActionType.Move) {
-                return $"{ActionType.Move} {pac.PacId} {pac.Location.x} {pac.Location.y}";
+                return $"{ActionType.Move} {pac.PacId} {action.TargetPoint.x} {action.TargetPoint.y}";
             }
             
             if (action.ActionType == ActionType.Speed) {

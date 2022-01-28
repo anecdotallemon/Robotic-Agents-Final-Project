@@ -98,7 +98,9 @@ class Game
             List<GameAction> actions = new List<GameAction>();
                 
             foreach (Pacman p in playerPacs) {
-                actions.Add(state.GetBestAction());
+                var action = state.GetBestAction();
+                state.MakeMove(action);
+                actions.Add(action);
             }
                 
             Parser.OutputMoves(playerPacs.ToArray(), actions.ToArray());
@@ -150,147 +152,148 @@ public class ActionType {
 }
 
 public class Pacman {
-    public Point Location;
-    public bool IsOurPlayer = false;
 
-    // Pac types include rock, paper, scissors
-    public PacType Type;
-    public readonly int PacId;
+        public Point Location;
+        public bool IsOurPlayer = false;
 
-    public static readonly int StartCoolDown = 10;
+        // Pac types include rock, paper, scissors
+        public PacType Type;
+        public readonly int PacId;
 
-    public int SpeedTurnsLeft { get; private set; } = 0;
-    public int AbilityCooldown = 0; // unused in wood league
+        public static readonly int StartCoolDown = 10;
+        public static readonly int StartSpeedTurn = 5;
+        
+        
+        public int SpeedTurnsLeft { get; private set; } = 0;
+        public int AbilityCooldown = 0; // unused in wood league
 
-    public bool Alive { get; private set; } = true;
+        public bool Alive { get; private set; } = true;
 
 
-    public Pacman(int x, int y, int pacId) {
-        Location = new Point(x, y);
-        PacId = pacId;
-    }
+        public Pacman(int x, int y, int pacId) {
+            Location = new Point(x, y);
+            PacId = pacId;
+        }
 
-    public Pacman(Point p, int pacId) {
-        Location = p;
-        PacId = pacId;
-    }
+        public Pacman(Point p, int pacId) {
+            Location = p;
+            PacId = pacId;
+        }
 
-    public Pacman(int x, int y, int pacId, bool isOurs, string typeId, int speedLeft, int cooldown) {
-        Location = new Point(x, y);
-        PacId = pacId;
-        IsOurPlayer = isOurs;
-        Type = PacType.FromString[typeId];
-        SpeedTurnsLeft = speedLeft;
-        AbilityCooldown = cooldown;
-    }
-
-    #region gamelogic
-
-    public void Move(GameAction move) {
-        if (move.ActionType == ActionType.Move) {
-            Location = move.TargetPoint;
-            // decreases ability cool down after each move 
-            if (AbilityCooldown != 0) {
-                AbilityCooldown = AbilityCooldown - 1;
+        public Pacman(int x, int y, int pacId, bool isOurs, string typeId, int speedLeft, int cooldown) {
+            Location = new Point(x, y);
+            PacId = pacId;
+            IsOurPlayer = isOurs;
+            Type = PacType.FromString[typeId];
+            SpeedTurnsLeft = speedLeft;
+            AbilityCooldown = cooldown;
+        }
+        
+        #region gamelogic
+        public void Move(GameAction move) {
+            if (move.ActionType == ActionType.Move){
+                Location = move.TargetPoint;
+                // decreases ability cool down after each move 
+                if(AbilityCooldown !=0 ){
+                    AbilityCooldown = AbilityCooldown  -1;
+                }
+                if(SpeedTurnsLeft != 0){
+                    SpeedTurnsLeft = SpeedTurnsLeft -1; 
+                }
             }
-
-            if (SpeedTurnsLeft != 0) {
-                SpeedTurnsLeft = SpeedTurnsLeft - 1;
+            else if (move.ActionType == ActionType.Speed){
+                // startCoolDown is 10 for now
+                AbilityCooldown = Pacman.StartCoolDown ;
+                SpeedTurnsLeft = Pacman.StartSpeedTurn;
+            }
+            else if (move.ActionType == ActionType.Switch){
+                Type = move.PacSwitch;
+                AbilityCooldown = Pacman.StartCoolDown ;
             }
         }
-        else if (move.ActionType == ActionType.Speed) {
-            // startCoolDown is 10 for now
-            AbilityCooldown = Pacman.StartCoolDown;
-            SpeedTurnsLeft = Pacman.StartCoolDown;
+        
+        // returns -1 if loses, 0 if tie, 1 if wins
+        // does NOT call Kill() -- that should only be called by parent state!
+        public int Combat(Pacman other) {
+            return CompareTo(other);
         }
-        else if (move.ActionType == ActionType.Switch) {
-            Type = move.PacSwitch;
-            AbilityCooldown = Pacman.StartCoolDown;
-        }
-    }
-
-    // returns -1 if loses, 0 if tie, 1 if wins
-    // does NOT call Kill() -- that should only be called by parent state!
-    public int Combat(Pacman other) {
-        return CompareTo(other);
-    }
-
-    // should ONLY be called by parent state, as parent state will need to adjust its own internals
-    public void Kill() {
-        Alive = false;
-    }
-
-    public void DecreaseSpeed() {
-        SpeedTurnsLeft--;
-        if (SpeedTurnsLeft < 0) SpeedTurnsLeft = 0;
-    }
-
-    #endregion
-
-    #region bookkeeping
-
-    public override String ToString() {
-        if (IsOurPlayer) {
-            return "Player: " + Location.ToString() + $" {PacId:X}";
-        }
-        else {
-            return "Enemy: " + Location.ToString() + $" {PacId:X}";
-        }
-    }
-
-    // note: purely value-wise! NOT always appropriate!!!
-    // copies of players should be value-equal but NOT reference-equal
-    public override bool Equals(Object obj) {
-        if (obj == null || obj.GetType() != typeof(Pacman)) return false;
-
-        Pacman p = (Pacman) obj;
-
-        return (p.Location.Equals(Location) && p.IsOurPlayer == IsOurPlayer && PacId == p.PacId);
-    }
-
-    public Pacman Clone() {
-        Pacman p = new Pacman(Location, PacId);
-        p.IsOurPlayer = IsOurPlayer;
-        p.Alive = Alive;
-
-        return p;
-    }
-
-    #endregion
-
-
-    public int CompareTo(Pacman pac) {
-        if (pac.Type == Type) {
-            return 0;
+        
+        // should ONLY be called by parent state, as parent state will need to adjust its own internals
+        public void Kill() {
+            Alive = false;
         }
 
-
-        else if (pac.Type == PacType.Rock) {
-            if (Type == PacType.Paper) {
-                return 1;
+        public void DecreaseSpeed() {
+            SpeedTurnsLeft--;
+            if (SpeedTurnsLeft < 0) SpeedTurnsLeft = 0;
+        }
+        
+        #endregion
+        
+        #region bookkeeping
+        public override String ToString() {
+            if (IsOurPlayer) {
+                return "Player: " + Location.ToString() + $" {PacId:X}";
             }
             else {
-                return -1;
+                return "Enemy: " + Location.ToString() + $" {PacId:X}";
             }
         }
-        else if (pac.Type == PacType.Paper) {
-            if (Type == PacType.Scissors) {
-                return 1;
-            }
-            else {
-                return -1;
-            }
+    
+        // note: purely value-wise! NOT always appropriate!!!
+        // copies of players should be value-equal but NOT reference-equal
+        public override bool Equals(Object obj) {
+            if (obj == null || obj.GetType() != typeof(Pacman)) return false;
+
+            Pacman p = (Pacman) obj;
+            
+            return (p.Location.Equals(Location) && p.IsOurPlayer == IsOurPlayer && PacId == p.PacId);
         }
-        else {
-            if (Type == PacType.Rock) {
-                return 1;
-            }
-            else {
-                return -1;
-            }
+
+        public Pacman Clone() {
+            Pacman p = new Pacman(Location, PacId);
+            p.IsOurPlayer = IsOurPlayer;
+            p.Alive = Alive;
+
+            return p;
         }
+        #endregion
+
+
+		public int CompareTo(Pacman pac) {
+			if (pac.Type == Type) {
+				return 0;
+			}
+            
+            
+			else if (pac.Type == PacType.Rock) {
+				if (Type == PacType.Paper) {
+					return 1;
+				}
+				else {
+					return -1;
+				}
+			}
+			else if (pac.Type == PacType.Paper) {
+				if (Type == PacType.Scissors) {
+					return 1;
+				}
+				else {
+					return -1;
+				}
+			}
+			else {
+				if (Type == PacType.Rock) {
+					return 1;
+				}
+				else {
+					return -1;
+				}
+			}
+		}
+
+
     }
-}
 
 public class PacType {
     public static readonly PacType Rock = new PacType("ROCK", 0);
@@ -429,7 +432,7 @@ public static class Parser {
             // SWITCH pacId pactype
 
             if (action.ActionType == ActionType.Move) {
-                return $"{ActionType.Move} {pac.PacId} {pac.Location.x} {pac.Location.y}";
+                return $"{ActionType.Move} {pac.PacId} {action.TargetPoint.x} {action.TargetPoint.y}";
             }
             
             if (action.ActionType == ActionType.Speed) {
@@ -696,7 +699,7 @@ public class State
 
 		private void GetVisiblePoints(Point start, Direction d, HashSet<Point> visiblePoints) {
 
-            Point newPoint = d.ApplyToPoint(start);
+            Point newPoint = d.ApplyToPoint(start).Wrap(Width, Height);
 
             while (!IsWall(newPoint)) {
                 visiblePoints.Add(newPoint);
@@ -829,9 +832,9 @@ public class State
                 kids.Add(new GameAction(actions[j], ActionType.Move, turnPac.Type));
             }
             if (turnPac.AbilityCooldown == 0) {
-                kids.Add(new GameAction(turnPac.Location, ActionType.Speed, turnPac.Type));
-                kids.Add(new GameAction(turnPac.Location, ActionType.Switch, SwitchPac.SwitchOptions(turnPac.Type, "PREY")));
-                kids.Add(new GameAction(turnPac.Location, ActionType.Switch, SwitchPac.SwitchOptions(turnPac.Type, "PREDATOR")));
+                    kids.Add(new GameAction(turnPac.Location, ActionType.Speed, turnPac.Type));
+                    kids.Add(new GameAction(turnPac.Location, ActionType.Switch, SwitchPac.SwitchOptions(turnPac.Type, "PREY")));
+                    kids.Add(new GameAction(turnPac.Location, ActionType.Switch, SwitchPac.SwitchOptions(turnPac.Type, "PREDATOR")));
             }
 
             return kids;
@@ -948,6 +951,7 @@ public class State
 
             return cellsToUpdateSet[i].Count > 0;
         }
+
         public bool IsWall(Point p) {
             return _walls[p.x, p.y];
         }

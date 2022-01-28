@@ -18,7 +18,9 @@ namespace Robotic_Agents_Final_Project {
                 List<GameAction> actions = new List<GameAction>();
                 
                 foreach (Pacman p in playerPacs) {
-                    actions.Add(state.GetBestAction());
+                    var action = state.GetBestAction();
+                    state.MakeMove(action);
+                    actions.Add(action);
                 }
                 
                 Parser.OutputMoves(playerPacs.ToArray(), actions.ToArray());
