@@ -863,6 +863,9 @@ public class State
         
         public Pacman ClosestEnemyPac(Pacman player){
             List<double> Distances = new List<double>();
+            if (Enemies.Count == 0) {
+                return null;
+            }
             Pacman closestPac = Enemies[0];
             foreach(Pacman ene in Enemies){
                 Distances.Add(ene.Location.Manhattan(player.Location));
@@ -872,19 +875,6 @@ public class State
             }
             return closestPac;
         }
-
-        public Pacman ClosestFriendlyPac(Pacman player) {
-            List<double> Distances = new List<double>();
-            Pacman closestPac = MyPacs[0];
-            foreach(Pacman pac in MyPacs){
-                Distances.Add(pac.Location.Manhattan(player.Location));
-                if (pac.Location.Manhattan(player.Location) < closestPac.Location.Manhattan(player.Location)) {
-                    closestPac = pac;
-                }
-            }
-            return closestPac;
-        }
-
 
         public double DistanceFromClosestPac(Pacman closest, Pacman player){
             double min = closest.Location.Manhattan(player.Location);
@@ -923,15 +913,21 @@ public class State
             int combatScore = 0;
 
             foreach (Pacman pac in MyPacs) {
-                Pacman closest = ClosestEnemyPac(pac);
-                double dist = DistanceFromClosestPac(closest, pac);
-                int combatResult = pac.CompareTo(closest);
-                if (combatResult > 0) {
-                    combatScore += 10; // arbitrary num
+                if (ClosestEnemyPac(pac) != null) {
+                    Pacman closest = ClosestEnemyPac(pac);
+                    double dist = DistanceFromClosestPac(closest, pac);
+                    int combatResult = pac.CompareTo(closest);
+                    if (dist < 2) {
+                        if (combatResult > 0) {
+                        combatScore += 20; // arbitrary num
+                        }
+                        else if (combatResult < 0) {
+                            combatScore -= 20;
+                        }
+                    }
+                    
                 }
-                else if (combatResult < 0) {
-                    combatScore -= 10;
-                }
+                
             }
 
             est += combatScore;
@@ -940,15 +936,6 @@ public class State
 
             // TODO if a friendly pac is in sight, -- (we want pacs to be further away) (this may be duplicated by flood fill)
 			// Same hat as above but with friendly pacs and no comparison
-
-            foreach (Pacman pac in MyPacs) {
-                Pacman closest = ClosestFriendlyPac(pac);
-                double dist = DistanceFromClosestPac(closest, pac);
-                if (dist < 6) {
-                    est -= 10;
-                    Console.Error.WriteLine($"Removal of points for being too close to another friendly pac.");
-                }
-            }
             
             return est;
         }
