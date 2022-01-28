@@ -258,12 +258,13 @@ namespace Robotic_Agents_Final_Project
         
         
         public int EstimateUtility() {
-            // parallel flood fill measuring available pellets, ++
+			int est = 0;
+			est += FloodFill();
             // if enemy pac in sight is of the "weaker" type to our pac, ++
             // if enemy pac in sight is same type, ==
             // if enemy pac in sight is stronger type, -- (run away!) possibly implement here if it's close enough to change?
             // if a friendly pac is in sight, -- (we want pacs to be further away) (this may be duplicated by flood fill)
-            throw new NotImplementedException();
+            return est;
         }
         
         // how many more points our pacs can access vs enemy pacs
