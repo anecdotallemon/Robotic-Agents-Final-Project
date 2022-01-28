@@ -11,10 +11,13 @@ namespace Robotic_Agents_Final_Project {
         public PacType Type;
         public readonly int PacId;
 
+        public static readonly int StartCoolDown = 10;
+        
         public int SpeedTurnsLeft { get; private set; } = 0;
         public int _abilityCooldown = 0; // unused in wood league
 
         public bool Alive { get; private set; } = true;
+
 
         public Pacman(int x, int y, int pacId) {
             Location = new Point(x, y);
