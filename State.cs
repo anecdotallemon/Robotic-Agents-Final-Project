@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using Robotic_Agents_Final_Project;
 
 namespace Robotic_Agents_Final_Project
@@ -86,6 +87,9 @@ namespace Robotic_Agents_Final_Project
                 }
             }
 
+            stateCopy.PlayerScore = PlayerScore;
+            stateCopy.OpponentScore = OpponentScore;
+
             return stateCopy;
         }
 
@@ -99,6 +103,7 @@ namespace Robotic_Agents_Final_Project
 			MyPacs.Clear();
 			Enemies.Clear();
 			_turnOrder.Clear();
+            _allPlayers.Clear();
             
             
             HashSet<Point> visiblePoints = new HashSet<Point>();
@@ -141,6 +146,8 @@ namespace Robotic_Agents_Final_Project
 			foreach (Pacman pac in Enemies) {
 				_turnOrder.Enqueue(pac);
 			}
+
+            Console.Error.WriteLine(BoardToString());
             
         }
 
@@ -173,6 +180,7 @@ namespace Robotic_Agents_Final_Project
                 State child = this.Clone();
                 child.MakeMove(action);
                 double utility = child.EstimateUtility();
+                Console.Error.WriteLine($"Pac: {GetCurrentPlayer().PacId}\nAction: {action}\nScore:{utility}");
                 if (utility >= bestUtility) {
                     bestAction = action;
                     bestUtility = utility;
@@ -324,21 +332,28 @@ namespace Robotic_Agents_Final_Project
             
         
         public double EstimateUtility() {
+            Console.Error.WriteLine();
             double est = PlayerScore - OpponentScore;
-			est += FloodFill();
+            Console.Error.WriteLine($"Points from scoredif: {est}");
+
+            var flood = FloodFill();
+            Console.Error.WriteLine($"Points from flood fill: {flood}");
+            est += flood;
 
             est += _combatScoreThisTurn;
+            Console.Error.WriteLine($"Points from combat: {_combatScoreThisTurn}");
             
             // fuck it just give a direct bonus for speed since flood fill doesnt seem to be picking it up
             int speedCount = 0;
 
             foreach (Pacman pac in _allPlayers) {
-                speedCount += pac.SpeedTurnsLeft > 0 ? (pac.IsOurPlayer ? 1 : -1) : 0;
+                var speedBonus = pac.SpeedTurnsLeft > 0 ? 1 : 0;
+                speedCount += speedBonus * (pac.IsOurPlayer ? 1 : -1);
             }
 
             est += speedCount;
 
-            
+            Console.Error.WriteLine($"Points fom speed: {speedCount}");
             
             // TODO if enemy pac in sight is of the "weaker" type to our pac, ++
             // TODO if enemy pac in sight is same type, ==
@@ -362,7 +377,9 @@ namespace Robotic_Agents_Final_Project
             foreach (Pacman pac in MyPacs) {
 
             }
-			
+            
+            
+            
             return est;
         }
         
@@ -502,6 +519,35 @@ namespace Robotic_Agents_Final_Project
             }
 
             victim.Kill();
+
+        }
+
+        public string BoardToString() {
+            StringBuilder sb = new StringBuilder();
+
+            for (int y = 0; y < Height; y++) {
+                for (int x = 0; x < Width; x++) {
+                    if (_walls[x, y]) {
+                        sb.Append("##");
+                    }
+                    else if (_scores[x, y] == 1) {
+                        sb.Append("o ");
+                    }
+                    else if (_scores[x, y] == 10) {
+                        sb.Append("O ");
+                    }
+                    else if (_scores[x, y] == 0) {
+                        sb.Append("  ");
+                    }
+                    else {
+                        sb.Append(_scores[x, y]);
+                    }
+                }
+
+                sb.Append("\n");
+            }
+
+            return sb.ToString();
 
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 /// <summary>
 /// "Pseudo-enum" representing cardinal directions in 2D space
@@ -477,90 +478,93 @@ public class Pellet {
 }
 
 public readonly struct Point {
-    public readonly int x;
-    public readonly int y;
+        public readonly int x;
+        public readonly int y;
 
-    /// <summary>
-    /// Construct a new <c>Point</c> with the given values.
-    /// </summary>
-    /// <param name="x"></param>
-    /// <param name="y"></param>
-    public Point(int x, int y) {
-        this.x = x;
-        this.y = y;
+        /// <summary>
+        /// Construct a new <c>Point</c> with the given values.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        public Point(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        /// <summary>
+        /// Construct a copy of the given <c>Point</c>.
+        /// </summary>
+        /// <param name="p">The <c>Point</c> to copy</param>
+        public Point(Point p) {
+            this.x = p.x;
+            this.y = p.y;
+        }
+
+        public static Point operator +(Point a) => a;
+        public static Point operator -(Point b) => new Point(-b.x, -b.y);
+        public static Point operator +(Point a, Point b) => new Point(a.x + b.x, a.y + b.y);
+        public static Point operator -(Point a, Point b) => a + (-b);
+
+        public static bool operator ==(Point a, Point b) => a.Equals(b);
+
+        public static bool operator !=(Point a, Point b) => !a.Equals(b);
+
+        /// <summary>
+        /// Get the square magnitude of the current <c>Point</c>, that is, the square of its distance from the origin.
+        /// </summary>
+        /// <returns>The square magnitude as an integer</returns>
+        public int Mag2() {
+            return x * x + y * y;
+        }
+        public double Manhattan(Point p) {
+            return Convert.ToDouble( Math.Abs((x-p.x)) + Math.Abs(y-p.y)); 
+        }
+
+        public Point Wrap(int width, int height) {
+            var x1 = x;
+            while (x1 < 0) x1 += width;
+            var y1 = y;
+            while (y1 < 0) y1 += height;
+
+            x1 %= width;
+            y1 %= height;
+
+            return new Point(x1, y1);
+        }
+
+        public override string ToString() {
+            return "(" + x + ", " + y + ")";
+        }
+
+        /// <summary>
+        /// Whether this <c>Point</c> is within the boundaries of the game.
+        /// </summary>
+        /// <returns>Returns <code>true</code> if and only if the <c>Point</c> is within the game bounds, <code>false</code> otherwise.</returns>
+        public bool IsOutOfBounds(int width, int height) {
+            return x >= width || x < 0 || y >= height || y < 0;
+        }
+
+        /// <summary>
+        /// Whether this <c>Point</c> is considered equal to a given object.
+        /// </summary>
+        /// <param name="obj">The object to compare against</param>
+        /// <returns><code>true</code> if and only if the other object is a <c>Point</c> with identical values, <code>false</code> otherwise.</returns>
+        public override bool Equals(Object obj) {
+            if (obj == null || obj.GetType() != typeof(Point)) return false;
+            Point p = (Point) obj;
+            return (p.x == x && p.y == y);
+        }
+
+        /// <summary>
+        /// Returns a semi-unique identifier for the given <c>Point</c>.
+        /// </summary>
+        /// <returns>An integer representing the <c>Point</c></returns>
+        public override int GetHashCode() {
+            // this implementation assumes small values and so is technically not suitable for general purposes
+            // but it should work just fine for the entirety of the robotics class
+            return x << 16 + y;
+        }
     }
-
-    /// <summary>
-    /// Construct a copy of the given <c>Point</c>.
-    /// </summary>
-    /// <param name="p">The <c>Point</c> to copy</param>
-    public Point(Point p) {
-        this.x = p.x;
-        this.y = p.y;
-    }
-
-    public static Point operator +(Point a) => a;
-    public static Point operator -(Point b) => new Point(-b.x, -b.y);
-    public static Point operator +(Point a, Point b) => new Point(a.x + b.x, a.y + b.y);
-    public static Point operator -(Point a, Point b) => a + (-b);
-
-    public static bool operator ==(Point a, Point b) => a.Equals(b);
-
-    public static bool operator !=(Point a, Point b) => !a.Equals(b);
-
-    /// <summary>
-    /// Get the square magnitude of the current <c>Point</c>, that is, the square of its distance from the origin.
-    /// </summary>
-    /// <returns>The square magnitude as an integer</returns>
-    public int Mag2() {
-        return x * x + y * y;
-    }
-
-    public Point Wrap(int width, int height) {
-        var x1 = x;
-        while (x1 < 0) x1 += width;
-        var y1 = y;
-        while (y1 < 0) y1 += height;
-
-        x1 %= width;
-        y1 %= height;
-
-        return new Point(x1, y1);
-    }
-
-    public override string ToString() {
-        return "(" + x + ", " + y + ")";
-    }
-
-    /// <summary>
-    /// Whether this <c>Point</c> is within the boundaries of the game.
-    /// </summary>
-    /// <returns>Returns <code>true</code> if and only if the <c>Point</c> is within the game bounds, <code>false</code> otherwise.</returns>
-    public bool IsOutOfBounds(int width, int height) {
-        return x >= width || x < 0 || y >= height || y < 0;
-    }
-
-    /// <summary>
-    /// Whether this <c>Point</c> is considered equal to a given object.
-    /// </summary>
-    /// <param name="obj">The object to compare against</param>
-    /// <returns><code>true</code> if and only if the other object is a <c>Point</c> with identical values, <code>false</code> otherwise.</returns>
-    public override bool Equals(Object obj) {
-        if (obj == null || obj.GetType() != typeof(Point)) return false;
-        Point p = (Point) obj;
-        return (p.x == x && p.y == y);
-    }
-
-    /// <summary>
-    /// Returns a semi-unique identifier for the given <c>Point</c>.
-    /// </summary>
-    /// <returns>An integer representing the <c>Point</c></returns>
-    public override int GetHashCode() {
-        // this implementation assumes small values and so is technically not suitable for general purposes
-        // but it should work just fine for the entirety of the robotics class
-        return x << 16 + y;
-    }
-}
 
 public class State
     {
@@ -644,6 +648,9 @@ public class State
                 }
             }
 
+            stateCopy.PlayerScore = PlayerScore;
+            stateCopy.OpponentScore = OpponentScore;
+
             return stateCopy;
         }
 
@@ -657,6 +664,7 @@ public class State
 			MyPacs.Clear();
 			Enemies.Clear();
 			_turnOrder.Clear();
+            _allPlayers.Clear();
             
             
             HashSet<Point> visiblePoints = new HashSet<Point>();
@@ -699,6 +707,8 @@ public class State
 			foreach (Pacman pac in Enemies) {
 				_turnOrder.Enqueue(pac);
 			}
+
+            Console.Error.WriteLine(BoardToString());
             
         }
 
@@ -731,6 +741,7 @@ public class State
                 State child = this.Clone();
                 child.MakeMove(action);
                 double utility = child.EstimateUtility();
+                Console.Error.WriteLine($"Pac: {GetCurrentPlayer().PacId}\nAction: {action}\nScore:{utility}");
                 if (utility >= bestUtility) {
                     bestAction = action;
                     bestUtility = utility;
@@ -850,33 +861,62 @@ public class State
 
         }
         
+        public List<double> DistanceFromEnemies(Pacman player){
+            List<double> Distances = new List<double>();
+            foreach(Pacman ene in Enemies){
+                Distances.Add(ene.Location.Manhattan(player.Location));
+
+            }
+            return Distances;
+
+        }
+        public double MinDistance(Pacman player){
+            List<double> Distances = DistanceFromEnemies(player);
+            double min = double.MaxValue;
+            foreach(double d in Distances ){
+                if (min > d){
+                    min = d;
+                }
+
+            }
+            return min;
+        }
+            
         
         public double EstimateUtility() {
+            Console.Error.WriteLine();
             double est = PlayerScore - OpponentScore;
-			est += FloodFill();
+            Console.Error.WriteLine($"Points from scoredif: {est}");
+
+            var flood = FloodFill();
+            Console.Error.WriteLine($"Points from flood fill: {flood}");
+            est += flood;
 
             est += _combatScoreThisTurn;
+            Console.Error.WriteLine($"Points from combat: {_combatScoreThisTurn}");
             
             // fuck it just give a direct bonus for speed since flood fill doesnt seem to be picking it up
             int speedCount = 0;
 
             foreach (Pacman pac in _allPlayers) {
-                speedCount += pac.SpeedTurnsLeft > 0 ? (pac.IsOurPlayer ? 1 : -1) : 0;
+                var speedBonus = pac.SpeedTurnsLeft > 0 ? 1 : 0;
+                speedCount += speedBonus * (pac.IsOurPlayer ? 1 : -1);
             }
 
             est += speedCount;
+            Console.Error.WriteLine($"Points from speed: {speedCount}");
             
             // TODO if enemy pac in sight is of the "weaker" type to our pac, ++
-			// Get current player, then get enemy pacs in sight (maybe just if there's one close enough?), then compare
+            // Get current player, then get enemy pacs in sight (maybe just if there's one close enough?), then compare
 
             // TODO if enemy pac in sight is same type, ==
-			// Same hat as above
+            // Same hat as above
 			
             // TODO if enemy pac in sight is stronger type, -- (run away!) possibly implement here if it's close enough to change?
-			// Same hat as above
+            // Same hat as above
 			
             // TODO if a friendly pac is in sight, -- (we want pacs to be further away) (this may be duplicated by flood fill)
-			// Same hat as above but with friendly pacs and no comparison
+            // Same hat as above but with friendly pacs and no comparison
 			
             return est;
         }
@@ -1017,6 +1057,35 @@ public class State
             }
 
             victim.Kill();
+
+        }
+
+        public string BoardToString() {
+            StringBuilder sb = new StringBuilder();
+
+            for (int y = 0; y < Height; y++) {
+                for (int x = 0; x < Width; x++) {
+                    if (_walls[x, y]) {
+                        sb.Append("##");
+                    }
+                    else if (_scores[x, y] == 1) {
+                        sb.Append("o ");
+                    }
+                    else if (_scores[x, y] == 10) {
+                        sb.Append("O ");
+                    }
+                    else if (_scores[x, y] == 0) {
+                        sb.Append("  ");
+                    }
+                    else {
+                        sb.Append(_scores[x, y]);
+                    }
+                }
+
+                sb.Append("\n");
+            }
+
+            return sb.ToString();
 
         }
 
