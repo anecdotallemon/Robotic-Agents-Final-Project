@@ -861,24 +861,33 @@ public class State
 
         }
         
-        public List<double> DistanceFromEnemies(Pacman player){
+        public Pacman ClosestEnemyPac(Pacman player){
             List<double> Distances = new List<double>();
+            Pacman closestPac = Enemies[0];
             foreach(Pacman ene in Enemies){
                 Distances.Add(ene.Location.Manhattan(player.Location));
-
-            }
-            return Distances;
-
-        }
-        public double MinDistance(Pacman player){
-            List<double> Distances = DistanceFromEnemies(player);
-            double min = double.MaxValue;
-            foreach(double d in Distances ){
-                if (min > d){
-                    min = d;
+                if (ene.Location.Manhattan(player.Location) < closestPac.Location.Manhattan(player.Location)) {
+                    closestPac = ene;
                 }
-
             }
+            return closestPac;
+        }
+
+        public Pacman ClosestFriendlyPac(Pacman player) {
+            List<double> Distances = new List<double>();
+            Pacman closestPac = MyPacs[0];
+            foreach(Pacman pac in MyPacs){
+                Distances.Add(pac.Location.Manhattan(player.Location));
+                if (pac.Location.Manhattan(player.Location) < closestPac.Location.Manhattan(player.Location)) {
+                    closestPac = pac;
+                }
+            }
+            return closestPac;
+        }
+
+
+        public double DistanceFromClosestPac(Pacman closest, Pacman player){
+            double min = closest.Location.Manhattan(player.Location);
             return min;
         }
             
@@ -904,20 +913,43 @@ public class State
             }
 
             est += speedCount;
-            Console.Error.WriteLine($"Points from speed: {speedCount}");
+
+            Console.Error.WriteLine($"Points fom speed: {speedCount}");
             
             // TODO if enemy pac in sight is of the "weaker" type to our pac, ++
-            // Get current player, then get enemy pacs in sight (maybe just if there's one close enough?), then compare
-
             // TODO if enemy pac in sight is same type, ==
-            // Same hat as above
-			
             // TODO if enemy pac in sight is stronger type, -- (run away!) possibly implement here if it's close enough to change?
-            // Same hat as above
-			
+			// Get current player, then get enemy pacs in sight (maybe just if there's one close enough?), then compare
+            int combatScore = 0;
+
+            foreach (Pacman pac in MyPacs) {
+                Pacman closest = ClosestEnemyPac(pac);
+                double dist = DistanceFromClosestPac(closest, pac);
+                int combatResult = pac.CompareTo(closest);
+                if (combatResult > 0) {
+                    combatScore += 10; // arbitrary num
+                }
+                else if (combatResult < 0) {
+                    combatScore -= 10;
+                }
+            }
+
+            est += combatScore;
+
+            Console.Error.WriteLine($"Points from potential combat: {combatScore}");
+
             // TODO if a friendly pac is in sight, -- (we want pacs to be further away) (this may be duplicated by flood fill)
-            // Same hat as above but with friendly pacs and no comparison
-			
+			// Same hat as above but with friendly pacs and no comparison
+
+            foreach (Pacman pac in MyPacs) {
+                Pacman closest = ClosestFriendlyPac(pac);
+                double dist = DistanceFromClosestPac(closest, pac);
+                if (dist < 6) {
+                    est -= 10;
+                    Console.Error.WriteLine($"Removal of points for being too close to another friendly pac.");
+                }
+            }
+            
             return est;
         }
         
