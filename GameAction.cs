@@ -13,6 +13,10 @@ namespace Robotic_Agents_Final_Project {
             ActionType = actionType;
             PacSwitch = pacSwitch;
         }
+
+        public override string ToString() {
+            return $"{ActionType} {TargetPoint} {PacSwitch}";
+        }
     }
     public class ActionType{
         

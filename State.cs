@@ -10,7 +10,6 @@ namespace Robotic_Agents_Final_Project
         // one list for our pacs and one list for enemies, since we may want to keep track of where we ares
         public List<Pacman> MyPacs { get; private set; } = new List<Pacman>();
         public List<Pacman> Enemies { get; private set; } = new List<Pacman>();
-        public Point[,] GameBoard;
 
         private Queue<Pacman> _turnOrder = new Queue<Pacman>(); // all alive players, sorted by turn order
         private List<Pacman> _allPlayers = new List<Pacman>(); // list of all players, including dead ones, sorted by initial turn order
@@ -230,7 +229,10 @@ namespace Robotic_Agents_Final_Project
                     scoreDelta /= (subject.IsOurPlayer ? MyPacs.Count : Enemies.Count); // the more we kill, the more valuable later kills are. losing your last pac is a lot worse than losing your first
                     _combatScoreThisTurn += scoreDelta;
 
-                    if (combatResult < 0) break;
+                    if (combatResult < 0) {
+                        honoredDead.Add(subject);
+                        break;
+                    }
                     
                     if (combatResult > 0) {
                         honoredDead.Add(opponent);
@@ -297,6 +299,15 @@ namespace Robotic_Agents_Final_Project
 
             est += _combatScoreThisTurn;
             
+            // fuck it just give a direct bonus for speed since flood fill doesnt seem to be picking it up
+            int speedCount = 0;
+
+            foreach (Pacman pac in _allPlayers) {
+                speedCount += pac.SpeedTurnsLeft > 0 ? (pac.IsOurPlayer ? 1 : -1) : 0;
+            }
+
+            est += speedCount;
+            
             // TODO if enemy pac in sight is of the "weaker" type to our pac, ++
 			// Get current player, then get enemy pacs in sight (maybe just if there's one close enough?), then compare
 
@@ -313,7 +324,7 @@ namespace Robotic_Agents_Final_Project
         }
         
         // how many more points our pacs can access vs enemy pacs
-        private int FloodFill() {
+        private double FloodFill() {
 
             Queue<Point>[] cellsToUpdate = new Queue<Point>[_turnOrder.Count];
             HashSet<Point>[] cellsToUpdateSet = new HashSet<Point>[_turnOrder.Count]; // used to check for duplicates in queue
@@ -323,7 +334,7 @@ namespace Robotic_Agents_Final_Project
             
             Pacman[] turnOrderCopy = _turnOrder.ToArray();
             
-            int netPoints = 0;
+            double netPoints = 0;
             
             for (int i = 0; i < _turnOrder.Count; i++) {
                 cellsToUpdate[i] = new Queue<Point>();
@@ -333,6 +344,7 @@ namespace Robotic_Agents_Final_Project
                 cellsToUpdateSet[i].Add(start);
             }
 
+            int time = 1;
     
             // while there are still adjacent cells to update
             while (stillCellsToUpdate) {
@@ -345,13 +357,13 @@ namespace Robotic_Agents_Final_Project
                     // just because SOMEBODY still has cells to update doesnt mean it's this guy
                     if (cellsToUpdateSet[i].Count > 0) {
                         stillCellsToUpdate |= FloodFillHelper(turnOrderCopy, cellsToUpdate, cellsToUpdateSet, cellsUpdated,
-                                                              i, ref netPoints);
+                                                              i, ref netPoints, ref time);
                     }
                     
                     // fast ones get to go again, because they move faster
                     if (turnOrderCopy[i].SpeedTurnsLeft > 0 && cellsToUpdateSet[i].Count > 0) {
                         stillCellsToUpdate |= FloodFillHelper(turnOrderCopy, cellsToUpdate, cellsToUpdateSet, cellsUpdated,
-                                                              i, ref netPoints);
+                                                              i, ref netPoints, ref time);
                         // this WILL change the speed turns remaining of the original pac, but...
                         // this is a leaf state anyway so it shouldnt matter
                         // this is the last thing this state will be doing.
@@ -366,7 +378,7 @@ namespace Robotic_Agents_Final_Project
         
         // runs a single pass of the flood fill algorithm
         private bool FloodFillHelper(Pacman[] turnOrderCopy, Queue<Point>[] cellsToUpdate, HashSet<Point>[] cellsToUpdateSet, 
-                                     bool[,] cellsUpdated, int i, ref int netPoints) {
+                                     bool[,] cellsUpdated, int i, ref double netPoints, ref int time) {
             // remove the next point
             Point p = cellsToUpdate[i].Dequeue();
             cellsToUpdateSet[i].Remove(p);
@@ -396,7 +408,8 @@ namespace Robotic_Agents_Final_Project
                 }
             }
 
-            netPoints += GetScore(p) * (turnOrderCopy[i].IsOurPlayer ? 1 : -1);
+            netPoints += GetScore(p) * (turnOrderCopy[i].IsOurPlayer ? 1 : -1) / (double) time;
+            time++;
 
             return cellsToUpdateSet[i].Count > 0;
         }

@@ -105,6 +105,9 @@ namespace Robotic_Agents_Final_Project {
             Pacman p = new Pacman(Location, PacId);
             p.IsOurPlayer = IsOurPlayer;
             p.Alive = Alive;
+            p.Type = Type;
+            p.SpeedTurnsLeft = SpeedTurnsLeft;
+            p.AbilityCooldown = AbilityCooldown;
 
             return p;
         }
