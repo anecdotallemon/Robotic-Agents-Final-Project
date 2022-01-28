@@ -1,16 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Robotic_Agents_Final_Project {
     // class to represent actions -- cant just use Direction because this game lets you speed, change color, etc
     public class GameAction {
-        public Point gameActions;
-        public ActionType actionType;
-        public PacType pacSwitch;
-        public GameAction(Point gameAction, string actionType, PacType pacSwitch){
+        public Point TargetPoint;
+        public ActionType ActionType;
+        public PacType PacSwitch;
+        public GameAction(Point targetPoint, ActionType actionType, PacType pacSwitch){
         
-            this.gameActions = gameAction;
-            this.actionType = ActionType.FromString[actionType];
-            this.pacSwitch = pacSwitch;
+            TargetPoint = targetPoint;
+            ActionType = actionType;
+            PacSwitch = pacSwitch;
         }
     }
     public class ActionType{
@@ -37,7 +38,7 @@ namespace Robotic_Agents_Final_Project {
 
             ActionType p = (ActionType) obj;
             
-            return (p.ToString == ToString); 
+            return (p.ToString() == ToString()); 
         }
 
 

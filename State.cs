@@ -186,9 +186,9 @@ namespace Robotic_Agents_Final_Project
 
             Pacman turnPac = _turnOrder.Dequeue();
             
-            if(move.actionType.Equals( ActionType.FromString["MOVE "]) ){
-            turnPac.Location = move.gameActions;
-            // decreses ability cool down after each move 
+            if(move.ActionType == ActionType.Move){
+                turnPac.Location = move.TargetPoint;
+                // decreses ability cool down after each move 
                 if(turnPac._abilityCooldown !=0 ){
                     turnPac._abilityCooldown = turnPac._abilityCooldown  -1;
                 }
@@ -196,13 +196,13 @@ namespace Robotic_Agents_Final_Project
                     turnPac.SpeedTurnsLeft = turnPac.SpeedTurnsLeft -1; 
                 }
             }
-            else if(move.actionType.Equals(ActionType.FromString["SPEED "]) ){
+            else if(move.ActionType == ActionType.Speed){
                 // startCoolDown is 10 for now
                 turnPac._abilityCooldown = Pacman.StartCoolDown ;
                 turnPac.SpeedTurnsLeft = Pacman.StartCoolDown ;
             }
-            else if( move.actionType.Equals(ActionType.FromString["SWITCH "])){
-                turnPac.Type = move.pacSwitch;
+            else if(move.ActionType == ActionType.Switch){
+                turnPac.Type = move.PacSwitch;
                 turnPac._abilityCooldown = Pacman.StartCoolDown ;
             }
             _turnOrder.Enqueue(turnPac);
@@ -236,12 +236,12 @@ namespace Robotic_Agents_Final_Project
             List<GameAction> kids = new List<GameAction>();
             
             for (int j = 0; j< actions.Count; j++){
-                kids.Add(new GameAction(actions[j], "MOVE", turnPac.Type));
+                kids.Add(new GameAction(actions[j], ActionType.Move, turnPac.Type));
             }
             if(turnPac._abilityCooldown == 0){
-                    kids.Add(new GameAction(turnPac.Location, "SPEED", turnPac.Type));
-                    kids.Add(new GameAction(turnPac.Location, "SWITCH", SwitchPac.SwitchOptions(turnPac.Type, "PREY")));
-                    kids.Add(new GameAction(turnPac.Location, "SWITCH", SwitchPac.SwitchOptions(turnPac.Type, "PREDATOR")));
+                    kids.Add(new GameAction(turnPac.Location, ActionType.Speed, turnPac.Type));
+                    kids.Add(new GameAction(turnPac.Location, ActionType.Switch, SwitchPac.SwitchOptions(turnPac.Type, "PREY")));
+                    kids.Add(new GameAction(turnPac.Location, ActionType.Switch, SwitchPac.SwitchOptions(turnPac.Type, "PREDATOR")));
             }
 
             return kids;
