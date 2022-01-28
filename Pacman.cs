@@ -12,6 +12,8 @@ namespace Robotic_Agents_Final_Project {
         public readonly int PacId;
 
         public static readonly int StartCoolDown = 10;
+        public static readonly int StartSpeedTurn = 5;
+        
         
         public int SpeedTurnsLeft { get; private set; } = 0;
         public int AbilityCooldown = 0; // unused in wood league
@@ -53,7 +55,7 @@ namespace Robotic_Agents_Final_Project {
             else if (move.ActionType == ActionType.Speed){
                 // startCoolDown is 10 for now
                 AbilityCooldown = Pacman.StartCoolDown ;
-                SpeedTurnsLeft = Pacman.StartCoolDown ;
+                SpeedTurnsLeft = Pacman.StartSpeedTurn;
             }
             else if (move.ActionType == ActionType.Switch){
                 Type = move.PacSwitch;
