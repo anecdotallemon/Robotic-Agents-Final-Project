@@ -367,7 +367,7 @@ namespace Robotic_Agents_Final_Project
             foreach (Direction d in Direction.Directions) {
                 Point neighbor = d.ApplyToPoint(p).Wrap(Width, Height);
                             
-                if (!neighbor.IsOutOfBounds() && !IsWall(neighbor) && !cellsUpdated[neighbor.x, neighbor.y]) {
+                if (!IsWall(neighbor) && !cellsUpdated[neighbor.x, neighbor.y]) {
 
                     bool isPlannedToUpdate = false;
 
