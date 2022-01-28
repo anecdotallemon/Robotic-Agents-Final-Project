@@ -197,7 +197,8 @@ namespace Robotic_Agents_Final_Project
 
             Pacman turnPac = _turnOrder.Dequeue();
             turnPac.Move(move);
-
+            
+            // update scores, eat pellets
             var score = GetScore(turnPac.Location);
             if (score > 0) {
                 if (turnPac.IsOurPlayer) {
@@ -284,7 +285,7 @@ namespace Robotic_Agents_Final_Project
         
         
         public double EstimateUtility() {
-			double est = double.NegativeInfinity;
+            double est = PlayerScore - OpponentScore;
 			est += FloodFill();
 
             est += _combatScoreThisTurn;
@@ -330,43 +331,62 @@ namespace Robotic_Agents_Final_Project
             while (stillCellsToUpdate) {
 
                 stillCellsToUpdate = false;
-
+                
+                // iterate over players
                 for (int i = 0; i < turnOrderCopy.Length; i++) {
-                    // remove the next point
-                    Point p = cellsToUpdate[i].Dequeue();
-                    cellsToUpdateSet[i].Remove(p);
+                    stillCellsToUpdate |= FloodFillHelper(turnOrderCopy, cellsToUpdate, cellsToUpdateSet, cellsUpdated,
+                                                          i, ref netPoints);
                     
-                    if (cellsUpdated[p.x, p.y]) break;
-
-                    cellsUpdated[p.x, p.y] = true;
-        
-                    // add relevant neighbors to queue
-                    foreach (Direction d in Direction.Directions) {
-                        Point neighbor = d.ApplyToPoint(p).Wrap(Width, Height);
-                            
-                        if (!neighbor.IsOutOfBounds() && !IsWall(neighbor) && !cellsUpdated[neighbor.x, neighbor.y]) {
-
-                            bool isPlannedToUpdate = false;
-
-                            for (int j = 0; j < turnOrderCopy.Length; j++) {
-                                isPlannedToUpdate |= cellsToUpdateSet[j].Contains(neighbor);
-                            }
-
-                            if (!isPlannedToUpdate) {
-                                cellsToUpdate[i].Enqueue(neighbor);
-                                cellsToUpdateSet[i].Add(neighbor);
-                            }
-                        }
+                    // fast ones get to go again, because they move faster
+                    if (turnOrderCopy[i].SpeedTurnsLeft > 0) {
+                        stillCellsToUpdate |= FloodFillHelper(turnOrderCopy, cellsToUpdate, cellsToUpdateSet, cellsUpdated,
+                                                              i, ref netPoints);
+                        // this WILL change the speed turns remaining of the original pac, but...
+                        // this is a leaf state anyway so it shouldnt matter
+                        // this is the last thing this state will be doing.
+                        turnOrderCopy[i].DecreaseSpeed();
                     }
-
-                    netPoints += GetScore(p) * (turnOrderCopy[i].IsOurPlayer ? 1 : -1);
-
-                    stillCellsToUpdate |= cellsToUpdateSet.Length > 0;
                 }
 
             }
             
             return netPoints;
+        }
+        
+        // runs a single pass of the flood fill algorithm
+        private bool FloodFillHelper(Pacman[] turnOrderCopy, Queue<Point>[] cellsToUpdate, HashSet<Point>[] cellsToUpdateSet, 
+                                     bool[,] cellsUpdated, int i, ref int netPoints) {
+            // remove the next point
+            Point p = cellsToUpdate[i].Dequeue();
+            cellsToUpdateSet[i].Remove(p);
+            
+            // if this cell was already claimed, skip it
+            if (cellsUpdated[p.x, p.y]) return cellsToUpdateSet.Length > 0;
+
+            cellsUpdated[p.x, p.y] = true;
+        
+            // add relevant neighbors to queue
+            foreach (Direction d in Direction.Directions) {
+                Point neighbor = d.ApplyToPoint(p).Wrap(Width, Height);
+                            
+                if (!neighbor.IsOutOfBounds() && !IsWall(neighbor) && !cellsUpdated[neighbor.x, neighbor.y]) {
+
+                    bool isPlannedToUpdate = false;
+
+                    for (int j = 0; j < turnOrderCopy.Length; j++) {
+                        isPlannedToUpdate |= cellsToUpdateSet[j].Contains(neighbor);
+                    }
+
+                    if (!isPlannedToUpdate) {
+                        cellsToUpdate[i].Enqueue(neighbor);
+                        cellsToUpdateSet[i].Add(neighbor);
+                    }
+                }
+            }
+
+            netPoints += GetScore(p) * (turnOrderCopy[i].IsOurPlayer ? 1 : -1);
+
+            return cellsToUpdateSet.Length > 0;
         }
 
         public bool IsWall(Point p) {
