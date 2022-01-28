@@ -32,6 +32,13 @@ namespace Robotic_Agents_Final_Project {
         public override string ToString() {
             return _string;
         }
+        public override bool Equals(Object obj) {
+            if (obj == null || obj.GetType() != typeof(ActionType)) return false;
+
+            ActionType p = (ActionType) obj;
+            
+            return (p.ToString == ToString); 
+        }
 
 
 

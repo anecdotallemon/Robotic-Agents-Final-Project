@@ -216,8 +216,27 @@ namespace Robotic_Agents_Final_Project
         /// <param name="move"></param>
         /// <exception cref="NotImplementedException"></exception>
         public void MakeMove(GameAction move) {
+
             Pacman turnPac = _turnOrder.Dequeue();
+            
+            if(move.actionType.Equals( ActionType.FromString["MOVE "]) ){
             turnPac.Location = move.gameActions;
+                if(turnPac._abilityCooldown !=0 ){
+                    turnPac._abilityCooldown =  turnPac._abilityCooldown  -1;
+                }
+                if(turnPac._speedTurnsLeft != 0){
+                    turnPac._speedTurnsLeft = turnPac._speedTurnsLeft -1; 
+                }
+            }
+            else if(move.actionType.Equals(ActionType.FromString["SPEED "]) ){
+                // startCoolDown is 10 for now
+                turnPac._abilityCooldown = Pacman.startCoolDown ;
+                turnPac._speedTurnsLeft =  Pacman.startCoolDown ;
+            }
+            else if( move.actionType.Equals(ActionType.FromString["SWITCH "])){
+                turnPac.Type = move.pacSwitch;
+                turnPac._abilityCooldown = Pacman.startCoolDown ;
+            }
             _turnOrder.Enqueue(turnPac);
             
             // modify player score here and remove pellet from score board if necesarry 
