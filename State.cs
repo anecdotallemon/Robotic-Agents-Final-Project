@@ -237,6 +237,18 @@ namespace Robotic_Agents_Final_Project
                     actions.Add(newPoint);
                 }
             }
+            // if we have a speed boost we go through all the points in actions 
+            // and do what we did before to get all points we can go to in 1 turn with speed boost 
+            if(turnPac._speedTurnsLeft != 0){
+                foreach (Point p in actions){
+                    foreach (Direction d in Direction.Directions) {
+                        var newPoint = d.ApplyToPoint(p).Wrap(Width, Height);
+                        if (!IsWall(d.ApplyToPoint(p).Wrap(Width, Height))) {
+                            actions.Add(newPoint);
+                        }
+                    }   
+                }
+            }
             
             List<GameAction>kids; 
             for (int j = 0; j< actions.Count; j++){
