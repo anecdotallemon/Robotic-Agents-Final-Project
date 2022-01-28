@@ -257,11 +257,13 @@ namespace Robotic_Agents_Final_Project
             }
             // if we have a speed boost we go through all the points in actions 
             // and do what we did before to get all points we can go to in 1 turn with speed boost 
+            // fixed so we can modify actions 
+            int orginalActions = actions.Count;
             if(turnPac.SpeedTurnsLeft != 0){
-                foreach (Point p in actions){
+                for(int i =0; i < orginalActions; i++){
                     foreach (Direction d in Direction.Directions) {
-                        var newPoint = d.ApplyToPoint(p).Wrap(Width, Height);
-                        if (!IsWall(d.ApplyToPoint(p).Wrap(Width, Height))) {
+                        var newPoint = d.ApplyToPoint(actions[i]).Wrap(Width, Height);
+                        if (!IsWall(d.ApplyToPoint(actions[i]).Wrap(Width, Height))) {
                             actions.Add(newPoint);
                         }
                     }   
