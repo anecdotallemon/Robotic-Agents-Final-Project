@@ -13,8 +13,8 @@ namespace Robotic_Agents_Final_Project {
 
         public static readonly int StartCoolDown = 10;
         
-        public int SpeedTurnsLeft { get; set; } = 0;
-        public int _abilityCooldown = 0; // unused in wood league
+        public int SpeedTurnsLeft { get; private set; } = 0;
+        public int AbilityCooldown = 0; // unused in wood league
 
         public bool Alive { get; private set; } = true;
 
@@ -35,19 +35,36 @@ namespace Robotic_Agents_Final_Project {
             IsOurPlayer = isOurs;
             Type = PacType.FromString[typeId];
             SpeedTurnsLeft = speedLeft;
-            _abilityCooldown = cooldown;
+            AbilityCooldown = cooldown;
         }
         
         #region gamelogic
-        // returns previous position
-        public Point Move(GameAction a) {
-            throw new NotImplementedException();
+        public void Move(GameAction move) {
+            if (move.ActionType == ActionType.Move){
+                Location = move.TargetPoint;
+                // decreases ability cool down after each move 
+                if(AbilityCooldown !=0 ){
+                    AbilityCooldown = AbilityCooldown  -1;
+                }
+                if(SpeedTurnsLeft != 0){
+                    SpeedTurnsLeft = SpeedTurnsLeft -1; 
+                }
+            }
+            else if (move.ActionType == ActionType.Speed){
+                // startCoolDown is 10 for now
+                AbilityCooldown = Pacman.StartCoolDown ;
+                SpeedTurnsLeft = Pacman.StartCoolDown ;
+            }
+            else if (move.ActionType == ActionType.Switch){
+                Type = move.PacSwitch;
+                AbilityCooldown = Pacman.StartCoolDown ;
+            }
         }
         
         // returns -1 if loses, 0 if tie, 1 if wins
         // does NOT call Kill() -- that should only be called by parent state!
-        public bool Combat(Pacman other) {
-            throw new NotImplementedException();
+        public int Combat(Pacman other) {
+            return CompareTo(other);
         }
         
         // should ONLY be called by parent state, as parent state will need to adjust its own internals

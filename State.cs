@@ -20,6 +20,8 @@ namespace Robotic_Agents_Final_Project
 
         private int PlayerScore;
         private int OpponentScore;
+
+        private int _combatScoreThisTurn = 0;
         
         public readonly int Width;
         public readonly int Height;
@@ -88,6 +90,9 @@ namespace Robotic_Agents_Final_Project
         }
 
         public void InitializeForTurn() { // to capture the new information
+
+            _combatScoreThisTurn = 0; // probably not necessary as this is usually only read and set in fictional states, but good practice just in case
+            
             var ParserReturn = Parser.ParseInput();
             PlayerScore = ParserReturn.myScore;
             OpponentScore = ParserReturn.opponentScore;
@@ -154,7 +159,6 @@ namespace Robotic_Agents_Final_Project
 
         }
 
-
         public Pacman GetCurrentPlayer() {
             return _turnOrder.Peek();
         }
@@ -165,7 +169,7 @@ namespace Robotic_Agents_Final_Project
         /// </summary>
         public GameAction GetBestAction() {
             List<GameAction> actions = GetMoves();
-            GameAction bestAction;
+            GameAction bestAction = null;
             double bestUtility = double.NegativeInfinity;
 
             foreach (GameAction action in actions) {
@@ -180,9 +184,7 @@ namespace Robotic_Agents_Final_Project
 
             return bestAction;
         }
-
-
-
+        
         
         /// <summary>
         /// given a move, make the current player take that move, update the state as necessary (including checking for kills, removing pellets, setting player types, etc), and put the current player back at the end of the queue
@@ -193,31 +195,40 @@ namespace Robotic_Agents_Final_Project
         /// <param name="move"></param>
         /// <exception cref="NotImplementedException"></exception>
         public void MakeMove(GameAction move) {
+            _combatScoreThisTurn = 0;
 
             Pacman turnPac = _turnOrder.Dequeue();
-            
-            if(move.ActionType == ActionType.Move){
-                turnPac.Location = move.TargetPoint;
-                // decreses ability cool down after each move 
-                if(turnPac._abilityCooldown !=0 ){
-                    turnPac._abilityCooldown = turnPac._abilityCooldown  -1;
-                }
-                if(turnPac.SpeedTurnsLeft != 0){
-                    turnPac.SpeedTurnsLeft = turnPac.SpeedTurnsLeft -1; 
-                }
-            }
-            else if(move.ActionType == ActionType.Speed){
-                // startCoolDown is 10 for now
-                turnPac._abilityCooldown = Pacman.StartCoolDown ;
-                turnPac.SpeedTurnsLeft = Pacman.StartCoolDown ;
-            }
-            else if(move.ActionType == ActionType.Switch){
-                turnPac.Type = move.PacSwitch;
-                turnPac._abilityCooldown = Pacman.StartCoolDown ;
-            }
+            turnPac.Move(move);
             _turnOrder.Enqueue(turnPac);
             
-            // TODO: kill evaluation
+            CheckCombat(turnPac);
+        }
+        
+        private void CheckCombat(Pacman subject) {
+            
+            var opponents = subject.IsOurPlayer ? Enemies : MyPacs;
+
+            List<Pacman> honoredDead = new List<Pacman>();
+
+            foreach (var opponent in opponents) {
+                if (opponent.Location == subject.Location) {
+                    
+                    var combatResult = subject.Combat(opponent);
+                    var scoreDelta = combatResult * Params.KillReward * (subject.IsOurPlayer ? 1 : -1);
+                    scoreDelta /= (subject.IsOurPlayer ? MyPacs.Count : Enemies.Count); // the more we kill, the more valuable later kills are. losing your last pac is a lot worse than losing your first
+                    _combatScoreThisTurn += scoreDelta;
+
+                    if (combatResult < 0) break;
+                    
+                    if (combatResult > 0) {
+                        honoredDead.Add(opponent);
+                    }
+                }
+            }
+
+            foreach (var pac in honoredDead) {
+                pac.Kill();
+            }
             
         }
 
@@ -250,7 +261,7 @@ namespace Robotic_Agents_Final_Project
             for (int j = 0; j< actions.Count; j++){
                 kids.Add(new GameAction(actions[j], ActionType.Move, turnPac.Type));
             }
-            if(turnPac._abilityCooldown == 0){
+            if(turnPac.AbilityCooldown == 0){
                     kids.Add(new GameAction(turnPac.Location, ActionType.Speed, turnPac.Type));
                     kids.Add(new GameAction(turnPac.Location, ActionType.Switch, SwitchPac.SwitchOptions(turnPac.Type, "PREY")));
                     kids.Add(new GameAction(turnPac.Location, ActionType.Switch, SwitchPac.SwitchOptions(turnPac.Type, "PREDATOR")));
@@ -264,6 +275,9 @@ namespace Robotic_Agents_Final_Project
         public double EstimateUtility() {
 			double est = double.NegativeInfinity;
 			est += FloodFill();
+
+            est += _combatScoreThisTurn;
+            
             // TODO if enemy pac in sight is of the "weaker" type to our pac, ++
 			// Get current player, then get enemy pacs in sight (maybe just if there's one close enough?), then compare
 
