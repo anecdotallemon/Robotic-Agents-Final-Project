@@ -68,23 +68,34 @@ namespace Robotic_Agents_Final_Project {
             return (myScore, opponentScore, pacs.ToArray(), pellets.ToArray());
         }
 
-        public static void OutputMove(Pacman pac, GameAction action) {
+        private static string SingleMoveToString(Pacman pac, GameAction action) {
             // valid outputs:
             // MOVE pacId x y
             // SPEED pacId
             // SWITCH pacId pactype
 
             if (action.ActionType == ActionType.Move) {
-                Console.WriteLine($"{ActionType.Move} {pac.PacId} {pac.Location.x} {pac.Location.y}");
+                return $"{ActionType.Move} {pac.PacId} {pac.Location.x} {pac.Location.y}";
             }
             
-            else if (action.ActionType == ActionType.Speed) {
-                Console.WriteLine($"{ActionType.Speed} {pac.PacId}");
+            if (action.ActionType == ActionType.Speed) {
+                return $"{ActionType.Speed} {pac.PacId}";
+            }
+            
+            return $"{ActionType.Switch} {pac.PacId} {action.PacSwitch}";
+            
+        }
+
+        public static void OutputMoves(Pacman[] pacs, GameAction[] actions) {
+
+            if (pacs.Length != actions.Length) throw new ArgumentException();
+
+            for (int i = 0; i < pacs.Length; i++) {
+                Console.Write(SingleMoveToString(pacs[i], actions[i]));
+                Console.Write("|");
             }
 
-            else {
-                Console.WriteLine($"{ActionType.Switch} {pac.PacId} {action.PacSwitch}");
-            }
+            Console.WriteLine();
         }
     }
 }

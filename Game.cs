@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace Robotic_Agents_Final_Project {
@@ -14,12 +13,15 @@ namespace Robotic_Agents_Final_Project {
             while (true) {
                 var input = Parser.ParseInput();
                 state.InitializeForTurn(input.myScore, input.opponentScore, input.pacmans, input.pellets);
+                
                 List<Pacman> playerPacs = state.MyPacs;
-
+                List<GameAction> actions = new List<GameAction>();
+                
                 foreach (Pacman p in playerPacs) {
-                    var action = state.GetBestAction();
-                    Parser.OutputMove(p, action);
+                    actions.Add(state.GetBestAction());
                 }
+                
+                Parser.OutputMoves(playerPacs.ToArray(), actions.ToArray());
                 
             }
         }

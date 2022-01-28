@@ -251,29 +251,36 @@ namespace Robotic_Agents_Final_Project
 
             foreach (Direction d in Direction.Directions) {
                 var newPoint = d.ApplyToPoint(turnPac.Location).Wrap(Width, Height);
-                if (!IsWall(d.ApplyToPoint(turnPac.Location).Wrap(Width, Height))) {
+                if (!IsWall(newPoint)) {
                     actions.Add(newPoint);
                 }
             }
             // if we have a speed boost we go through all the points in actions 
             // and do what we did before to get all points we can go to in 1 turn with speed boost 
-            if(turnPac.SpeedTurnsLeft != 0){
-                foreach (Point p in actions){
+            if(turnPac.SpeedTurnsLeft != 0) {
+
+                var newActions = new List<Point>();
+                
+                foreach (Point p in actions) {
                     foreach (Direction d in Direction.Directions) {
+                        newActions.Add(p);
+                        
                         var newPoint = d.ApplyToPoint(p).Wrap(Width, Height);
-                        if (!IsWall(d.ApplyToPoint(p).Wrap(Width, Height))) {
-                            actions.Add(newPoint);
+                        if (!IsWall(newPoint) && newPoint != turnPac.Location) {
+                            newActions.Add(newPoint);
                         }
                     }   
                 }
+
+                actions = newActions;
             }
 
             List<GameAction> kids = new List<GameAction>();
             
-            for (int j = 0; j< actions.Count; j++){
+            for (int j = 0; j< actions.Count; j++) {
                 kids.Add(new GameAction(actions[j], ActionType.Move, turnPac.Type));
             }
-            if(turnPac.AbilityCooldown == 0){
+            if (turnPac.AbilityCooldown == 0) {
                     kids.Add(new GameAction(turnPac.Location, ActionType.Speed, turnPac.Type));
                     kids.Add(new GameAction(turnPac.Location, ActionType.Switch, SwitchPac.SwitchOptions(turnPac.Type, "PREY")));
                     kids.Add(new GameAction(turnPac.Location, ActionType.Switch, SwitchPac.SwitchOptions(turnPac.Type, "PREDATOR")));
@@ -334,11 +341,15 @@ namespace Robotic_Agents_Final_Project
                 
                 // iterate over players
                 for (int i = 0; i < turnOrderCopy.Length; i++) {
-                    stillCellsToUpdate |= FloodFillHelper(turnOrderCopy, cellsToUpdate, cellsToUpdateSet, cellsUpdated,
-                                                          i, ref netPoints);
+                    
+                    // just because SOMEBODY still has cells to update doesnt mean it's this guy
+                    if (cellsToUpdateSet[i].Count > 0) {
+                        stillCellsToUpdate |= FloodFillHelper(turnOrderCopy, cellsToUpdate, cellsToUpdateSet, cellsUpdated,
+                                                              i, ref netPoints);
+                    }
                     
                     // fast ones get to go again, because they move faster
-                    if (turnOrderCopy[i].SpeedTurnsLeft > 0 && stillCellsToUpdate) {
+                    if (turnOrderCopy[i].SpeedTurnsLeft > 0 && cellsToUpdateSet[i].Count > 0) {
                         stillCellsToUpdate |= FloodFillHelper(turnOrderCopy, cellsToUpdate, cellsToUpdateSet, cellsUpdated,
                                                               i, ref netPoints);
                         // this WILL change the speed turns remaining of the original pac, but...
@@ -361,7 +372,7 @@ namespace Robotic_Agents_Final_Project
             cellsToUpdateSet[i].Remove(p);
             
             // if this cell was already claimed, skip it
-            if (cellsUpdated[p.x, p.y]) return cellsToUpdateSet.Length > 0;
+            if (cellsUpdated[p.x, p.y]) return cellsToUpdateSet[i].Count > 0;
 
             cellsUpdated[p.x, p.y] = true;
         
@@ -387,7 +398,7 @@ namespace Robotic_Agents_Final_Project
 
             netPoints += GetScore(p) * (turnOrderCopy[i].IsOurPlayer ? 1 : -1);
 
-            return cellsToUpdateSet.Length > 0;
+            return cellsToUpdateSet[i].Count > 0;
         }
 
         public bool IsWall(Point p) {

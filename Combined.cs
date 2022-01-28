@@ -84,20 +84,25 @@ class Direction {
     #endregion
 }
 
-class Game {
+class Game
+{
     static void Main(string[] args) {
         State state = new State(Parser.GetMapLayout());
-
+            
         // game loop
         while (true) {
             var input = Parser.ParseInput();
             state.InitializeForTurn(input.myScore, input.opponentScore, input.pacmans, input.pellets);
+                
             List<Pacman> playerPacs = state.MyPacs;
-
+            List<GameAction> actions = new List<GameAction>();
+                
             foreach (Pacman p in playerPacs) {
-                var action = state.GetBestAction();
-                Parser.OutputMove(p, action);
+                actions.Add(state.GetBestAction());
             }
+                
+            Parser.OutputMoves(playerPacs.ToArray(), actions.ToArray());
+                
         }
     }
 }
@@ -352,87 +357,102 @@ static class Params {
 }
 
 public static class Parser {
-    /// <summary>
-    /// Get the map layout -- only valid on the very first read of the very first turn
-    /// </summary>
-    /// <returns>Array of walls</returns>
-    public static bool[,] GetMapLayout() {
-        string[] inputs;
-        inputs = Console.ReadLine().Split(' ');
-        int width = int.Parse(inputs[0]); // size of the grid
-        int height = int.Parse(inputs[1]); // top left corner is (x=0, y=0)
 
-        bool[,] walls = new bool[width, height];
+        /// <summary>
+        /// Get the map layout -- only valid on the very first read of the very first turn
+        /// </summary>
+        /// <returns>Array of walls</returns>
+        public static bool[,] GetMapLayout() {
+            string[] inputs;
+            inputs = Console.ReadLine().Split(' ');
+            int width = int.Parse(inputs[0]); // size of the grid
+            int height = int.Parse(inputs[1]); // top left corner is (x=0, y=0)
 
-        for (int y = 0; y < height; y++) {
-            string row = Console.ReadLine(); // one line of the grid: space " " is floor, pound "#" is wall
-            for (int x = 0; x < width; x++) {
-                walls[x, y] = row[x] == '#';
+            bool[,] walls = new bool[width, height];
+
+            for (int y = 0; y < height; y++) {
+                string row = Console.ReadLine(); // one line of the grid: space " " is floor, pound "#" is wall
+                for (int x = 0; x < width; x++) {
+                    walls[x, y] = row[x] == '#';
+                }
             }
+
+            return walls;
+
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>tuple of: our score, opponent score, visible pacmen, visible pellets</returns>
+        public static (int myScore, int opponentScore, Pacman[] pacmans, Pellet[] pellets) ParseInput() {
+
+            string[] inputs = Console.ReadLine().Split(' ');
+            int myScore = int.Parse(inputs[0]);
+            int opponentScore = int.Parse(inputs[1]);
+            int visiblePacCount = int.Parse(Console.ReadLine()); // all your pacs and enemy pacs in sight
+
+            List<Pacman> pacs = new List<Pacman>();
+            
+            for (int i = 0; i < visiblePacCount; i++) {
+                inputs = Console.ReadLine().Split(' ');
+                int pacId = int.Parse(inputs[0]); // pac number (unique within a team)
+                bool mine = inputs[1] != "0"; // true if this pac is yours
+                int x = int.Parse(inputs[2]); // position in the grid
+                int y = int.Parse(inputs[3]); // position in the grid
+                string typeId = inputs[4]; // unused in wood leagues
+                int speedTurnsLeft = int.Parse(inputs[5]); // unused in wood leagues
+                int abilityCooldown = int.Parse(inputs[6]); // unused in wood leagues
+                
+                pacs.Add(new Pacman(x, y, pacId, mine, typeId, speedTurnsLeft, abilityCooldown));
+            }
+
+            List<Pellet> pellets = new List<Pellet>();
+
+            int visiblePelletCount = int.Parse(Console.ReadLine()); // all pellets in sight
+            for (int i = 0; i < visiblePelletCount; i++) {
+                inputs = Console.ReadLine().Split(' ');
+                int x = int.Parse(inputs[0]);
+                int y = int.Parse(inputs[1]);
+                int value = int.Parse(inputs[2]); // amount of points this pellet is worth
+                
+                pellets.Add(new Pellet(new Point(x, y), value));
+            }
+
+            return (myScore, opponentScore, pacs.ToArray(), pellets.ToArray());
         }
 
-        return walls;
+        private static string SingleMoveToString(Pacman pac, GameAction action) {
+            // valid outputs:
+            // MOVE pacId x y
+            // SPEED pacId
+            // SWITCH pacId pactype
+
+            if (action.ActionType == ActionType.Move) {
+                return $"{ActionType.Move} {pac.PacId} {pac.Location.x} {pac.Location.y}";
+            }
+            
+            if (action.ActionType == ActionType.Speed) {
+                return $"{ActionType.Speed} {pac.PacId}";
+            }
+            
+            return $"{ActionType.Switch} {pac.PacId} {action.PacSwitch}";
+            
+        }
+
+        public static void OutputMoves(Pacman[] pacs, GameAction[] actions) {
+
+            if (pacs.Length != actions.Length) throw new ArgumentException();
+
+            for (int i = 0; i < pacs.Length; i++) {
+                Console.Write(SingleMoveToString(pacs[i], actions[i]));
+                Console.Write("|");
+            }
+
+            Console.WriteLine();
+        }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns>tuple of: our score, opponent score, visible pacmen, visible pellets</returns>
-    public static (int myScore, int opponentScore, Pacman[] pacmans, Pellet[] pellets) ParseInput() {
-        string[] inputs = Console.ReadLine().Split(' ');
-        int myScore = int.Parse(inputs[0]);
-        int opponentScore = int.Parse(inputs[1]);
-        int visiblePacCount = int.Parse(Console.ReadLine()); // all your pacs and enemy pacs in sight
-
-        List<Pacman> pacs = new List<Pacman>();
-
-        for (int i = 0; i < visiblePacCount; i++) {
-            inputs = Console.ReadLine().Split(' ');
-            int pacId = int.Parse(inputs[0]); // pac number (unique within a team)
-            bool mine = inputs[1] != "0"; // true if this pac is yours
-            int x = int.Parse(inputs[2]); // position in the grid
-            int y = int.Parse(inputs[3]); // position in the grid
-            string typeId = inputs[4]; // unused in wood leagues
-            int speedTurnsLeft = int.Parse(inputs[5]); // unused in wood leagues
-            int abilityCooldown = int.Parse(inputs[6]); // unused in wood leagues
-
-            pacs.Add(new Pacman(x, y, pacId, mine, typeId, speedTurnsLeft, abilityCooldown));
-        }
-
-        List<Pellet> pellets = new List<Pellet>();
-
-        int visiblePelletCount = int.Parse(Console.ReadLine()); // all pellets in sight
-        for (int i = 0; i < visiblePelletCount; i++) {
-            inputs = Console.ReadLine().Split(' ');
-            int x = int.Parse(inputs[0]);
-            int y = int.Parse(inputs[1]);
-            int value = int.Parse(inputs[2]); // amount of points this pellet is worth
-
-            pellets.Add(new Pellet(new Point(x, y), value));
-        }
-
-        return (myScore, opponentScore, pacs.ToArray(), pellets.ToArray());
-    }
-
-    public static void OutputMove(Pacman pac, GameAction action) {
-        // valid outputs:
-        // MOVE pacId x y
-        // SPEED pacId
-        // SWITCH pacId pactype
-
-        if (action.ActionType == ActionType.Move) {
-            Console.WriteLine($"{ActionType.Move} {pac.PacId} {pac.Location.x} {pac.Location.y}");
-        }
-
-        else if (action.ActionType == ActionType.Speed) {
-            Console.WriteLine($"{ActionType.Speed} {pac.PacId}");
-        }
-
-        else {
-            Console.WriteLine($"{ActionType.Switch} {pac.PacId} {action.PacSwitch}");
-        }
-    }
-}
 
 // simple pellet class
 // not actually used in game logic, just for transferring information from parser -> state
@@ -779,32 +799,39 @@ public class State
 
             foreach (Direction d in Direction.Directions) {
                 var newPoint = d.ApplyToPoint(turnPac.Location).Wrap(Width, Height);
-                if (!IsWall(d.ApplyToPoint(turnPac.Location).Wrap(Width, Height))) {
+                if (!IsWall(newPoint)) {
                     actions.Add(newPoint);
                 }
             }
             // if we have a speed boost we go through all the points in actions 
             // and do what we did before to get all points we can go to in 1 turn with speed boost 
-            if(turnPac.SpeedTurnsLeft != 0){
-                foreach (Point p in actions){
+            if(turnPac.SpeedTurnsLeft != 0) {
+
+                var newActions = new List<Point>();
+                
+                foreach (Point p in actions) {
                     foreach (Direction d in Direction.Directions) {
+                        newActions.Add(p);
+                        
                         var newPoint = d.ApplyToPoint(p).Wrap(Width, Height);
-                        if (!IsWall(d.ApplyToPoint(p).Wrap(Width, Height))) {
-                            actions.Add(newPoint);
+                        if (!IsWall(newPoint) && newPoint != turnPac.Location) {
+                            newActions.Add(newPoint);
                         }
                     }   
                 }
+
+                actions = newActions;
             }
 
             List<GameAction> kids = new List<GameAction>();
             
-            for (int j = 0; j< actions.Count; j++){
+            for (int j = 0; j< actions.Count; j++) {
                 kids.Add(new GameAction(actions[j], ActionType.Move, turnPac.Type));
             }
-            if(turnPac.AbilityCooldown == 0){
-                    kids.Add(new GameAction(turnPac.Location, ActionType.Speed, turnPac.Type));
-                    kids.Add(new GameAction(turnPac.Location, ActionType.Switch, SwitchPac.SwitchOptions(turnPac.Type, "PREY")));
-                    kids.Add(new GameAction(turnPac.Location, ActionType.Switch, SwitchPac.SwitchOptions(turnPac.Type, "PREDATOR")));
+            if (turnPac.AbilityCooldown == 0) {
+                kids.Add(new GameAction(turnPac.Location, ActionType.Speed, turnPac.Type));
+                kids.Add(new GameAction(turnPac.Location, ActionType.Switch, SwitchPac.SwitchOptions(turnPac.Type, "PREY")));
+                kids.Add(new GameAction(turnPac.Location, ActionType.Switch, SwitchPac.SwitchOptions(turnPac.Type, "PREDATOR")));
             }
 
             return kids;
@@ -862,11 +889,15 @@ public class State
                 
                 // iterate over players
                 for (int i = 0; i < turnOrderCopy.Length; i++) {
-                    stillCellsToUpdate |= FloodFillHelper(turnOrderCopy, cellsToUpdate, cellsToUpdateSet, cellsUpdated,
-                                                          i, ref netPoints);
+                    
+                    // just because SOMEBODY still has cells to update doesnt mean it's this guy
+                    if (cellsToUpdateSet[i].Count > 0) {
+                        stillCellsToUpdate |= FloodFillHelper(turnOrderCopy, cellsToUpdate, cellsToUpdateSet, cellsUpdated,
+                                                              i, ref netPoints);
+                    }
                     
                     // fast ones get to go again, because they move faster
-                    if (turnOrderCopy[i].SpeedTurnsLeft > 0 && stillCellsToUpdate) {
+                    if (turnOrderCopy[i].SpeedTurnsLeft > 0 && cellsToUpdateSet[i].Count > 0) {
                         stillCellsToUpdate |= FloodFillHelper(turnOrderCopy, cellsToUpdate, cellsToUpdateSet, cellsUpdated,
                                                               i, ref netPoints);
                         // this WILL change the speed turns remaining of the original pac, but...
@@ -889,7 +920,7 @@ public class State
             cellsToUpdateSet[i].Remove(p);
             
             // if this cell was already claimed, skip it
-            if (cellsUpdated[p.x, p.y]) return cellsToUpdateSet.Length > 0;
+            if (cellsUpdated[p.x, p.y]) return cellsToUpdateSet[i].Count > 0;
 
             cellsUpdated[p.x, p.y] = true;
         
@@ -915,9 +946,8 @@ public class State
 
             netPoints += GetScore(p) * (turnOrderCopy[i].IsOurPlayer ? 1 : -1);
 
-            return cellsToUpdateSet.Length > 0;
+            return cellsToUpdateSet[i].Count > 0;
         }
-
         public bool IsWall(Point p) {
             return _walls[p.x, p.y];
         }
