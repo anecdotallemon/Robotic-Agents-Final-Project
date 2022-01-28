@@ -11,19 +11,16 @@ namespace Robotic_Agents_Final_Project {
             State state = new State(Parser.GetMapLayout());
             
             // game loop
-            while (true)
-            {
-                state.InitializeForTurn();
+            while (true) {
+                var input = Parser.ParseInput();
+                state.InitializeForTurn(input.myScore, input.opponentScore, input.pacmans, input.pellets);
                 List<Pacman> playerPacs = state.MyPacs;
 
                 foreach (Pacman p in playerPacs) {
-                    // get best game move, add it to the list to be added to the string of all the moves
+                    var action = state.GetBestAction();
+                    Parser.OutputMove(p, action);
                 }
                 
-
-                // Write an action using Console.WriteLine()
-                // To debug: Console.Error.WriteLine("Debug messages...");
-                Console.WriteLine("MOVE 0 10 15"); // MOVE <pacId> <x> <y>
             }
         }
     }

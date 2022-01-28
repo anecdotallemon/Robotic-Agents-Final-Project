@@ -41,6 +41,7 @@ namespace Robotic_Agents_Final_Project
             for (int i = 0; i < Width; i++) {
                 for (int j = 0; j < Height; j++) {
                     _walls[i, j] = walls[i,j];
+                    // assume each blank spot has a pellet
                     if (!walls[i, j]) {
                         _scores[i, j] = 1;
                     }
@@ -89,24 +90,21 @@ namespace Robotic_Agents_Final_Project
             return stateCopy;
         }
 
-        public void InitializeForTurn() { // to capture the new information
+        public void InitializeForTurn(int myScore, int opponentScore, Pacman[] pacs, Pellet[] pellets) { // to capture the new information
 
             _combatScoreThisTurn = 0; // probably not necessary as this is usually only read and set in fictional states, but good practice just in case
             
-            var ParserReturn = Parser.ParseInput();
-            PlayerScore = ParserReturn.myScore;
-            OpponentScore = ParserReturn.opponentScore;
+            PlayerScore = myScore;
+            OpponentScore = opponentScore;
 
 			MyPacs.Clear();
 			Enemies.Clear();
 			_turnOrder.Clear();
-
-            Pacman[] tempMen = ParserReturn.pacmans;
-			Pellet[] pellets = ParserReturn.pellets;
+            
             
             HashSet<Point> visiblePoints = new HashSet<Point>();
             
-            foreach (Pacman pac in tempMen) {
+            foreach (Pacman pac in pacs) {
 				_scores[pac.Location.x, pac.Location.y] = 0;
 				
 				if (pac.Type == PacType.Dead) {
@@ -199,6 +197,19 @@ namespace Robotic_Agents_Final_Project
 
             Pacman turnPac = _turnOrder.Dequeue();
             turnPac.Move(move);
+
+            var score = GetScore(turnPac.Location);
+            if (score > 0) {
+                if (turnPac.IsOurPlayer) {
+                    PlayerScore += score;
+                }
+                else {
+                    OpponentScore += score;
+                }
+
+                _scores[turnPac.Location.x, turnPac.Location.y] = 0;
+            }
+            
             _turnOrder.Enqueue(turnPac);
             
             CheckCombat(turnPac);
@@ -296,6 +307,8 @@ namespace Robotic_Agents_Final_Project
         // how many more points our pacs can access vs enemy pacs
         private int FloodFill() {
             
+            // TODO: make this affected by speed
+            
             Queue<Point>[] cellsToUpdate = new Queue<Point>[_turnOrder.Count];
             HashSet<Point>[] cellsToUpdateSet = new HashSet<Point>[_turnOrder.Count]; // used to check for duplicates in queue
             bool[,] cellsUpdated = new bool[Width, Height];
@@ -346,7 +359,7 @@ namespace Robotic_Agents_Final_Project
                         }
                     }
 
-                    netPoints += _scores[p.x, p.y] * (turnOrderCopy[i].IsOurPlayer ? 1 : -1);
+                    netPoints += GetScore(p) * (turnOrderCopy[i].IsOurPlayer ? 1 : -1);
 
                     stillCellsToUpdate |= cellsToUpdateSet.Length > 0;
                 }
@@ -358,6 +371,10 @@ namespace Robotic_Agents_Final_Project
 
         public bool IsWall(Point p) {
             return _walls[p.x, p.y];
+        }
+
+        public int GetScore(Point p) {
+            return _scores[p.x, p.y];
         }
         
         // kill current player
