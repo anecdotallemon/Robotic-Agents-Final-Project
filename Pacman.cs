@@ -154,23 +154,21 @@ namespace Robotic_Agents_Final_Project {
 
 
     }
-    public class SwicthPac{
-            // pick the pacType that is prey or praditor to the given pac
+public class SwicthPac{
+        // pick the pacType that is prey or praditor to the given pac
         public static readonly Dictionary<String, int> FromString = new Dictionary<String, int>() {
-            {"PREDATOR", 1},
-            {"PREY", -1},
+            {"PREDATOR", 1}, // represents the pacType that eats the given type we bas in SwitchOptions
+            {"PREY", -1}, // represents the pacType that gets eaton the given type we bas in SwitchOptions
         };
-
        public SwicthPac(){}
-
        public static PacType SwicthOptions(PacType currType, string foodChain){
+           // we get our offste of either 1 or -1 on if we want the predator type or prey type to the fiven pacType
            int offset = FromString[foodChain];
+           // switched pacType to be based around mod math, the prey type is always 1 below and the preditor is 1 above
+           // semi flexiable if we add more pacTypes
            int newPacNum = (PacType.PacTypeToNum[currType] + offset) % (PacType.FromString.Count);
+           // return a PacType
            return PacType.NumToPacType[newPacNum];
-
-
        }  
-
-
     }
 }

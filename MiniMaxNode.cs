@@ -61,7 +61,7 @@ class MiniMaxNode {
     
     // separated into separate function purely for profiling purposes
     private void MakeChildren() {
-
+        // swictehd to List to handel when special moves cant be done 
         List<GameAction> availableMoves = _state.GetMoves();
       
        
