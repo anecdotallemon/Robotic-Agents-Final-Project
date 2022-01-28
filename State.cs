@@ -307,9 +307,7 @@ namespace Robotic_Agents_Final_Project
         
         // how many more points our pacs can access vs enemy pacs
         private int FloodFill() {
-            
-            // TODO: make this affected by speed
-            
+
             Queue<Point>[] cellsToUpdate = new Queue<Point>[_turnOrder.Count];
             HashSet<Point>[] cellsToUpdateSet = new HashSet<Point>[_turnOrder.Count]; // used to check for duplicates in queue
             bool[,] cellsUpdated = new bool[Width, Height];
