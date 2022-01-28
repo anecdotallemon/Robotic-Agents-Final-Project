@@ -97,7 +97,9 @@ namespace Robotic_Agents_Final_Project
 			_turnOrder.Clear();
 
             Pacman[] tempMen = ParserReturn.pacmans;
-			Pellet[] tempPellets = ParserReturn.pellets;
+			Pellet[] pellets = ParserReturn.pellets;
+            
+            HashSet<Point> visiblePoints = new HashSet<Point>();
             
             foreach (Pacman pac in tempMen) {
 				_scores[pac.Location.x, pac.Location.y] = 0;
@@ -106,16 +108,31 @@ namespace Robotic_Agents_Final_Project
 					if (pac.IsOurPlayer) {
 						MyPacs.Add(pac);
 						_allPlayers.Add(pac);
-					}
+                        
+                        // add all points in a cardinal direction to our set of known visible points
+                        foreach (Direction d in Direction.Directions) {
+                            GetVisiblePoints(pac.Location, d, visiblePoints);
+                        }
+                    }
 					else {
-						UpdateVisiblePellets(pac.Location.x, pac.Location.y, tempPellets);
-						Enemies.Add(pac);
+                        Enemies.Add(pac);
 						_allPlayers.Add(pac);
 					}
 				}
 			}
+            
+            // go through our list of pellets and update score values, removing them from the visible points set as we go
+            foreach (var pellet in pellets) {
+                _scores[pellet.Location.x, pellet.Location.y] = pellet.Score;
+                visiblePoints.Remove(pellet.Location);
+            }
+            
+            // any remaining points in visible points are those that have no pellets but are visible, meaning they should be set to zero
+            foreach (var p in visiblePoints) {
+                _scores[p.x, p.y] = 0;
+            }
 
-			// initializing turn order
+            // initializing turn order
 			foreach (Pacman pac in MyPacs) {
 				_turnOrder.Enqueue(pac);
 			}
@@ -123,51 +140,19 @@ namespace Robotic_Agents_Final_Project
 				_turnOrder.Enqueue(pac);
 			}
             
-			// initializing visible pellets, to try to catch any big pellets that escaped the updateVisiblePellets
-            foreach (Pellet pellet in tempPellets) {
-				_scores[pellet.Location.x, pellet.Location.y] = pellet.Score;
-			}
         }
 
 
-		private void UpdateVisiblePellets(int tempX, int tempY, Pellet[] tempPellets) {
-			Point p0 = new Point(tempX, tempY);
-			Point newPoint;
-			// north
-			if (tempY > 0) {
-				newPoint = Direction.Up.ApplyToPoint(p0);
-			}
-			// south
-			else if (tempY < Height) {
-				newPoint = Direction.Down.ApplyToPoint(p0);
-			}
-			// east
-			else if (tempX < Width) {
-				newPoint = Direction.Right.ApplyToPoint(p0);
-			}
-			// west
-			else {
-                newPoint = Direction.Left.ApplyToPoint(p0);
+		private void GetVisiblePoints(Point start, Direction d, HashSet<Point> visiblePoints) {
+
+            Point newPoint = d.ApplyToPoint(start);
+
+            while (!IsWall(newPoint)) {
+                visiblePoints.Add(newPoint);
+                newPoint = d.ApplyToPoint(newPoint);
             }
-			
-            // if we run into a wall, stop.
-			if (!_walls[newPoint.x, newPoint.y]) {
-                
-				// if the score isn't 0, see if it needs to be updated
-				if (_scores[newPoint.x, newPoint.y] != 0) {
-					foreach (Pellet p in tempPellets) {
-						if (p.Location == newPoint) {
-							_scores[newPoint.x, newPoint.y] = p.Score;
-						}
-						else {
-							_scores[newPoint.x, newPoint.y] = 0;
-						}
-					}
-				}
-				UpdateVisiblePellets(newPoint.x, newPoint.y, tempPellets);
-			}
-			
-		}
+
+        }
 
 
         public Pacman GetCurrentPlayer() {
@@ -206,6 +191,8 @@ namespace Robotic_Agents_Final_Project
                 turnPac._abilityCooldown = Pacman.StartCoolDown ;
             }
             _turnOrder.Enqueue(turnPac);
+            
+            // TODO: kill evaluation
             
         }
 
