@@ -292,6 +292,27 @@ namespace Robotic_Agents_Final_Project
 
         }
         
+        public List<double> DistanceFromEnemie(Pacman player){
+            List<double> Distances;
+            foreach(Pacman ene in Enemies){
+                Distances.Add(ene.Location.Manhattan(player.Location));
+
+            }
+            return Distances;
+
+        }
+        public double MinDistance(Pacman player){
+            List<double> Distances = DistanceFromEnemie(player);
+            double min = double.MaxValue;
+            foreach(double d in Distances ){
+                if (min > d){
+                    min = d;
+                }
+
+            }
+            return min;
+        }
+            
         
         public double EstimateUtility() {
             double est = PlayerScore - OpponentScore;
