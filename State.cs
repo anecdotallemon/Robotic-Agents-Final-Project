@@ -158,6 +158,31 @@ namespace Robotic_Agents_Final_Project
         public Pacman GetCurrentPlayer() {
             return _turnOrder.Peek();
         }
+
+
+        /// <summary>
+        /// This method evaluates all possible actions and returns the action with the best utility. 
+        /// </summary>
+        public GameAction GetBestAction() {
+            List<GameAction> actions = GetMoves();
+            GameAction bestAction;
+            double bestUtility = double.NegativeInfinity;
+
+            foreach (GameAction action in actions) {
+                State child = this.Clone();
+                child.MakeMove(action);
+                double utility = child.EstimateUtility();
+                if (utility >= bestUtility) {
+                    bestAction = action;
+                    bestUtility = utility;
+                }
+            }
+
+            return bestAction;
+        }
+
+
+
         
         /// <summary>
         /// given a move, make the current player take that move, update the state as necessary (including checking for kills, removing pellets, setting player types, etc), and put the current player back at the end of the queue
@@ -236,11 +261,11 @@ namespace Robotic_Agents_Final_Project
         }
         
         
-        public int EstimateUtility() {
-			int est = 0;
+        public double EstimateUtility() {
+			double est = double.NegativeInfinity;
 			est += FloodFill();
             // TODO if enemy pac in sight is of the "weaker" type to our pac, ++
-			// Get current player, then get enemy pacs in sight (maybe just if there's one close enough?), then CompareTypeTo
+			// Get current player, then get enemy pacs in sight (maybe just if there's one close enough?), then compare
 
             // TODO if enemy pac in sight is same type, ==
 			// Same hat as above
@@ -249,7 +274,7 @@ namespace Robotic_Agents_Final_Project
 			// Same hat as above
 			
             // TODO if a friendly pac is in sight, -- (we want pacs to be further away) (this may be duplicated by flood fill)
-			// Same hat as above but with friendly pacs and no type comparison
+			// Same hat as above but with friendly pacs and no comparison
 			
             return est;
         }
