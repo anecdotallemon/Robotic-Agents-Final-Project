@@ -532,8 +532,8 @@ public readonly struct Point {
 
 public class State {
     // one list for our pacs and one list for enemies, since we may want to keep track of where we ares
-    public List<Pacman> MyPacs { get; private set; }
-    public List<Pacman> Enemies { get; private set; }
+    public List<Pacman> MyPacs { get; private set; } = new List<Pacman>();
+    public List<Pacman> Enemies { get; private set; } = new List<Pacman>();
     public Point[,] GameBoard;
 
     private Queue<Pacman> _turnOrder = new Queue<Pacman>(); // all alive players, sorted by turn order
