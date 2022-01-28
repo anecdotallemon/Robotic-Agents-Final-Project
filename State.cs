@@ -190,20 +190,20 @@ namespace Robotic_Agents_Final_Project
             turnPac.Location = move.gameActions;
             // decreses ability cool down after each move 
                 if(turnPac._abilityCooldown !=0 ){
-                    turnPac._abilityCooldown =  turnPac._abilityCooldown  -1;
+                    turnPac._abilityCooldown = turnPac._abilityCooldown  -1;
                 }
-                if(turnPac._speedTurnsLeft != 0){
-                    turnPac._speedTurnsLeft = turnPac._speedTurnsLeft -1; 
+                if(turnPac.SpeedTurnsLeft != 0){
+                    turnPac.SpeedTurnsLeft = turnPac.SpeedTurnsLeft -1; 
                 }
             }
             else if(move.actionType.Equals(ActionType.FromString["SPEED "]) ){
                 // startCoolDown is 10 for now
-                turnPac._abilityCooldown = Pacman.startCoolDown ;
-                turnPac._speedTurnsLeft =  Pacman.startCoolDown ;
+                turnPac._abilityCooldown = Pacman.StartCoolDown ;
+                turnPac.SpeedTurnsLeft = Pacman.StartCoolDown ;
             }
             else if( move.actionType.Equals(ActionType.FromString["SWITCH "])){
                 turnPac.Type = move.pacSwitch;
-                turnPac._abilityCooldown = Pacman.startCoolDown ;
+                turnPac._abilityCooldown = Pacman.StartCoolDown ;
             }
             _turnOrder.Enqueue(turnPac);
             
