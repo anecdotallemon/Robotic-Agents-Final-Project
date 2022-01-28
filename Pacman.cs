@@ -130,8 +130,8 @@ namespace Robotic_Agents_Final_Project {
     public class PacType {
 
         public static readonly PacType Rock = new PacType("ROCK", 0);
-        public static readonly PacType Scissors = new PacType("SCISSORS", 1);
-        public static readonly PacType Paper = new PacType("PAPER", 2);
+        public static readonly PacType Scissors = new PacType("SCISSORS", 2);
+        public static readonly PacType Paper = new PacType("PAPER", 1);
         public static readonly PacType Dead = new PacType("DEAD", -1000);
 
         public static readonly Dictionary<String, PacType> FromString = new Dictionary<string, PacType>() {
