@@ -18,14 +18,14 @@ namespace Robotic_Agents_Final_Project {
         public static readonly ActionType Move = new ActionType("MOVE");
         public static readonly ActionType Speed = new ActionType("SPEED");
         public static readonly ActionType Switch = new ActionType("SWITCH");
-         public static readonly Dictionary<String, ActionType> FromString = new Dictionary<string, ActionType>() {
+        public static readonly Dictionary<string, ActionType> FromString = new Dictionary<string, ActionType>() {
             {Move.ToString(), Move},
             {Speed.ToString(), Speed},
             {Switch.ToString(), Switch}
         };
         private readonly string _string;
 
-        private ActionType(String s) {
+        private ActionType(string s) {
             _string = s;
         }
 

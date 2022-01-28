@@ -9,9 +9,9 @@ namespace Robotic_Agents_Final_Project {
 
         // Pac types include rock, paper, scissors
         public PacType Type;
-        public int PacId;
+        public readonly int PacId;
 
-        private int _speedTurnsLeft = 0; // unused in wood league
+        public int SpeedTurnsLeft { get; private set; } = 0;
         public int _abilityCooldown = 0; // unused in wood league
 
         public bool Alive { get; private set; } = true;
@@ -31,7 +31,7 @@ namespace Robotic_Agents_Final_Project {
             PacId = pacId;
             IsOurPlayer = isOurs;
             Type = PacType.FromString[typeId];
-            _speedTurnsLeft = speedLeft;
+            SpeedTurnsLeft = speedLeft;
             _abilityCooldown = cooldown;
         }
         
@@ -52,7 +52,11 @@ namespace Robotic_Agents_Final_Project {
             Alive = false;
         }
 
-       
+        public void DecreaseSpeed() {
+            SpeedTurnsLeft--;
+            if (SpeedTurnsLeft < 0) SpeedTurnsLeft = 0;
+        }
+        
         #endregion
         
         #region bookkeeping
@@ -85,20 +89,22 @@ namespace Robotic_Agents_Final_Project {
         #endregion
 
 
-		public int CompareTypeTo(Pacman pac) {
-			if (pac.Type.ToString().Equals(this.Type.ToString())) {
+		public int CompareTo(Pacman pac) {
+			if (pac.Type == Type) {
 				return 0;
 			}
-			else if (pac.Type.ToString().Equals("ROCK")) {
-				if (this.Type.ToString().Equals("PAPER")) {
+            
+            
+			else if (pac.Type == PacType.Rock) {
+				if (Type == PacType.Paper) {
 					return 1;
 				}
 				else {
 					return -1;
 				}
 			}
-			else if (pac.Type.ToString().Equals("PAPER")) {
-				if (this.Type.ToString().Equals("SCISSORS")) {
+			else if (pac.Type == PacType.Paper) {
+				if (Type == PacType.Scissors) {
 					return 1;
 				}
 				else {
@@ -106,7 +112,7 @@ namespace Robotic_Agents_Final_Project {
 				}
 			}
 			else {
-				if (this.Type.ToString().Equals("ROCK")) {
+				if (Type == PacType.Rock) {
 					return 1;
 				}
 				else {
@@ -120,21 +126,18 @@ namespace Robotic_Agents_Final_Project {
 
     public class PacType {
 
-        public static readonly PacType Rock = new PacType("ROCK");
-        public static readonly PacType Scissors = new PacType("SCISSORS");
-        public static readonly PacType Paper = new PacType("PAPER");
+        public static readonly PacType Rock = new PacType("ROCK", 0);
+        public static readonly PacType Scissors = new PacType("SCISSORS", 1);
+        public static readonly PacType Paper = new PacType("PAPER", 2);
+        public static readonly PacType Dead = new PacType("DEAD", -1000);
 
         public static readonly Dictionary<String, PacType> FromString = new Dictionary<string, PacType>() {
             {Rock.ToString(), Rock},
             {Scissors.ToString(), Scissors},
-            {Paper.ToString(), Paper}
+            {Paper.ToString(), Paper},
+            {Dead.ToString(), Dead}
         };
-        public static readonly Dictionary<PacType, int> PacTypeToNum = new Dictionary< PacType, int>() {
-            {Rock, 0},
-            {Paper, 1},
-            {Scissors, 2}
-           
-        };
+
         public static readonly Dictionary<int ,PacType> NumToPacType = new Dictionary<int, PacType>() {
             {0,Rock},
             {1,Paper},
@@ -143,30 +146,39 @@ namespace Robotic_Agents_Final_Project {
         };
 
         private readonly string _string;
-
-        private PacType(String s) {
+        private readonly int _int;
+        
+        private PacType(String s, int n) {
             _string = s;
+            _int = n;
         }
 
+        public int GetIntCode() {
+            return _int;
+        }
+        
         public override string ToString() {
             return _string;
         }
 
 
     }
-public class SwicthPac{
+public static class SwitchPac{
         // pick the pacType that is prey or praditor to the given pac
         public static readonly Dictionary<String, int> FromString = new Dictionary<String, int>() {
             {"PREDATOR", 1}, // represents the pacType that eats the given type we bas in SwitchOptions
             {"PREY", -1}, // represents the pacType that gets eaton the given type we bas in SwitchOptions
         };
-       public SwicthPac(){}
-       public static PacType SwicthOptions(PacType currType, string foodChain){
+        
+        public static PacType SwitchOptions(PacType currType, string foodChain) {
+
+            if (currType == PacType.Dead) throw new ArgumentException("Dead pacman given to switchoptions");
+           
            // we get our offste of either 1 or -1 on if we want the predator type or prey type to the fiven pacType
            int offset = FromString[foodChain];
            // switched pacType to be based around mod math, the prey type is always 1 below and the preditor is 1 above
            // semi flexiable if we add more pacTypes
-           int newPacNum = (PacType.PacTypeToNum[currType] + offset) % (PacType.FromString.Count);
+           int newPacNum = (currType.GetIntCode() + offset) % (PacType.FromString.Count);
            // return a PacType
            return PacType.NumToPacType[newPacNum];
        }  

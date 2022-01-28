@@ -89,27 +89,27 @@ namespace Robotic_Agents_Final_Project
 
         public void InitializeForTurn() { // to capture the new information
             var ParserReturn = Parser.ParseInput();
-            PlayerScore = ParserReturn.MyScore;
-            OpponentScore = ParserReturn.OpponentScore;
+            PlayerScore = ParserReturn.myScore;
+            OpponentScore = ParserReturn.opponentScore;
 
 			MyPacs.Clear();
 			Enemies.Clear();
 			_turnOrder.Clear();
 
-            Pacman[] TempMen = ParserReturn.pacmans;
-			Pellet[] TempPellets = ParserReturn.pellets;
-            foreach (Pacman pac in TempMen) {
+            Pacman[] tempMen = ParserReturn.pacmans;
+			Pellet[] tempPellets = ParserReturn.pellets;
+            
+            foreach (Pacman pac in tempMen) {
 				_scores[pac.Location.x, pac.Location.y] = 0;
-				if (!pac.Type.ToString() == "DEAD") {
+				
+				if (pac.Type == PacType.Dead) {
 					if (pac.IsOurPlayer) {
 						MyPacs.Add(pac);
-						_turnOrder.Add(pac);
 						_allPlayers.Add(pac);
 					}
 					else {
-						updateVisiblePellets(pac.Location.x, pac.Location.y, tempPellets);
+						UpdateVisiblePellets(pac.Location.x, pac.Location.y, tempPellets);
 						Enemies.Add(pac);
-						_turnOrder.Add(pac);
 						_allPlayers.Add(pac);
 					}
 				}
@@ -117,89 +117,56 @@ namespace Robotic_Agents_Final_Project
 
 			// initializing turn order
 			foreach (Pacman pac in MyPacs) {
-				_turnOrder.Add(pac);
+				_turnOrder.Enqueue(pac);
 			}
 			foreach (Pacman pac in Enemies) {
-				_turnOrder.Add(pac);
+				_turnOrder.Enqueue(pac);
 			}
             
 			// initializing visible pellets, to try to catch any big pellets that escaped the updateVisiblePellets
-            Pellet[] TempPellets = ParserReturn.pellets;
-			foreach (Pellet pellet in TempPellets) {
+            foreach (Pellet pellet in tempPellets) {
 				_scores[pellet.Location.x, pellet.Location.y] = pellet.Score;
 			}
         }
 
 
-		private void updateVisiblePellets(int tempX, int tempY, Pellet[] tempPellets) {
+		private void UpdateVisiblePellets(int tempX, int tempY, Pellet[] tempPellets) {
+			Point p0 = new Point(tempX, tempY);
+			Point newPoint;
 			// north
 			if (tempY > 0) {
-				if (!_walls[tempX, tempY - 1]) {
-					// if the score isn't 0, see if it needs to be updated
-					if (_score[tempX, tempY - 1] != 0) {
-						foreach (Pellet p in tempPellets) {
-							if (p.Location.x == tempX && p.Location.y == tempY - 1) {
-								_score[tempX, tempY - 1] = p.Score;
-							}
-							else {
-								_score[tempX, tempY - 1] = 0;
-							}
-						}
-					}
-					return updateDirectionally(tempX, tempY - 1);
-				}
+				newPoint = Direction.Up.ApplyToPoint(p0);
 			}
 			// south
-			if (tempY < Height) {
-				if (!_walls[tempX, tempY + 1]) {
-					// if the score isn't 0, see if it needs to be updated
-					if (_score[tempX, tempY + 1] != 0) {
-						foreach (Pellet p in tempPellets) {
-							if (p.Location.x == tempX && p.Location.y == tempY + 1) {
-								_score[tempX, tempY + 1] = p.Score;
-							}
-							else {
-								_score[tempX, tempY + 1] = 0;
-							}
-						}
-					}
-					return updateDirectionally(tempX, tempY + 1);
-				}
+			else if (tempY < Height) {
+				newPoint = Direction.Down.ApplyToPoint(p0);
 			}
 			// east
-			if (tempX < Width) {
-				if (!_walls[tempX + 1, tempY]) {
-					// if the score isn't 0, see if it needs to be updated
-					if (_score[tempX + 1, tempY] != 0) {
-						foreach (Pellet p in tempPellets) {
-							if (p.Location.x == tempX + 1 && p.Location.y == tempY) {
-								_score[tempX + 1, tempY] = p.Score;
-							}
-							else {
-								_score[tempX + 1, tempY] = 0;
-							}
-						}
-					}
-					return updateDirectionally(tempX + 1, tempY);
-				}
+			else if (tempX < Width) {
+				newPoint = Direction.Right.ApplyToPoint(p0);
 			}
 			// west
-			if (tempX > 0) {
-				if (!_walls[tempX - 1, tempY]) {
-					// if the score isn't 0, see if it needs to be updated
-					if (_score[tempX - 1, tempY] != 0) {
-						foreach (Pellet p in tempPellets) {
-							if (p.Location.x == tempX - 1 && p.Location.y == tempY) {
-								_score[tempX - 1, tempY] = p.Score;
-							}
-							else {
-								_score[tempX - 1, tempY] = 0;
-							}
+			else {
+                newPoint = Direction.Left.ApplyToPoint(p0);
+            }
+			
+            // if we run into a wall, stop.
+			if (!_walls[newPoint.x, newPoint.y]) {
+                
+				// if the score isn't 0, see if it needs to be updated
+				if (_scores[newPoint.x, newPoint.y] != 0) {
+					foreach (Pellet p in tempPellets) {
+						if (p.Location == newPoint) {
+							_scores[newPoint.x, newPoint.y] = p.Score;
+						}
+						else {
+							_scores[newPoint.x, newPoint.y] = 0;
 						}
 					}
-					return updateDirectionally(tempX - 1, tempY);
 				}
+				UpdateVisiblePellets(newPoint.x, newPoint.y, tempPellets);
 			}
+			
 		}
 
 
@@ -239,7 +206,7 @@ namespace Robotic_Agents_Final_Project
             }
             // if we have a speed boost we go through all the points in actions 
             // and do what we did before to get all points we can go to in 1 turn with speed boost 
-            if(turnPac._speedTurnsLeft != 0){
+            if(turnPac.SpeedTurnsLeft != 0){
                 foreach (Point p in actions){
                     foreach (Direction d in Direction.Directions) {
                         var newPoint = d.ApplyToPoint(p).Wrap(Width, Height);
@@ -249,15 +216,16 @@ namespace Robotic_Agents_Final_Project
                     }   
                 }
             }
+
+            List<GameAction> kids = new List<GameAction>();
             
-            List<GameAction>kids; 
             for (int j = 0; j< actions.Count; j++){
                 kids.Add(new GameAction(actions[j], "MOVE", turnPac.Type));
             }
             if(turnPac._abilityCooldown == 0){
                     kids.Add(new GameAction(turnPac.Location, "SPEED", turnPac.Type));
-                    kids.Add(new GameAction(turnPac.Location, "SWITCH", SwicthPac.SwicthOptions(turnPac.Type, "PREY")));
-                    kids.Add(new GameAction(turnPac.Location, "SWITCH", SwicthPac.SwicthOptions(turnPac.Type, "PREDATOR")));
+                    kids.Add(new GameAction(turnPac.Location, "SWITCH", SwitchPac.SwitchOptions(turnPac.Type, "PREY")));
+                    kids.Add(new GameAction(turnPac.Location, "SWITCH", SwitchPac.SwitchOptions(turnPac.Type, "PREDATOR")));
             }
 
             return kids;
