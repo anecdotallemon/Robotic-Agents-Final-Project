@@ -934,8 +934,8 @@ public class State
 
             Console.Error.WriteLine($"Points from potential combat: {combatScore}");
 
-            // TODO if a friendly pac is in sight, -- (we want pacs to be further away) (this may be duplicated by flood fill)
-			// Same hat as above but with friendly pacs and no comparison
+            Random rnd = new Random();
+            est += rnd.Next(2);
             
             return est;
         }
