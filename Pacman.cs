@@ -85,6 +85,36 @@ namespace Robotic_Agents_Final_Project {
         #endregion
 
 
+		public int CompareTypeTo(Pacman pac) {
+			if (pac.Type.ToString().Equals(this.Type.ToString())) {
+				return 0;
+			}
+			else if (pac.Type.ToString().Equals("ROCK")) {
+				if (this.Type.ToString().Equals("PAPER")) {
+					return 1;
+				}
+				else {
+					return -1;
+				}
+			}
+			else if (pac.Type.ToString().Equals("PAPER")) {
+				if (this.Type.ToString().Equals("SCISSORS")) {
+					return 1;
+				}
+				else {
+					return -1;
+				}
+			}
+			else {
+				if (this.Type.ToString().Equals("ROCK")) {
+					return 1;
+				}
+				else {
+					return -1;
+				}
+			}
+		}
+
 
     }
 

@@ -203,15 +203,6 @@ namespace Robotic_Agents_Final_Project
 		}
 
 
-        public void updatePoints()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UpdatePlayers() {
-            throw new NotImplementedException();
-        }
-
         public Pacman GetCurrentPlayer() {
             return _turnOrder.Peek();
         }
@@ -265,10 +256,18 @@ namespace Robotic_Agents_Final_Project
         public int EstimateUtility() {
 			int est = 0;
 			est += FloodFill();
-            // if enemy pac in sight is of the "weaker" type to our pac, ++
-            // if enemy pac in sight is same type, ==
-            // if enemy pac in sight is stronger type, -- (run away!) possibly implement here if it's close enough to change?
-            // if a friendly pac is in sight, -- (we want pacs to be further away) (this may be duplicated by flood fill)
+            // TODO if enemy pac in sight is of the "weaker" type to our pac, ++
+			// Get current player, then get enemy pacs in sight (maybe just if there's one close enough?), then CompareTypeTo
+
+            // TODO if enemy pac in sight is same type, ==
+			// Same hat as above
+			
+            // TODO if enemy pac in sight is stronger type, -- (run away!) possibly implement here if it's close enough to change?
+			// Same hat as above
+			
+            // TODO if a friendly pac is in sight, -- (we want pacs to be further away) (this may be duplicated by flood fill)
+			// Same hat as above but with friendly pacs and no type comparison
+			
             return est;
         }
         
