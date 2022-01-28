@@ -32,6 +32,10 @@ namespace Robotic_Agents_Final_Project {
             public static Point operator -(Point b) => new Point(-b.x, -b.y);
             public static Point operator +(Point a, Point b) => new Point(a.x + b.x, a.y + b.y);
             public static Point operator -(Point a, Point b) => a + (-b);
+
+            public static bool operator ==(Point a, Point b) => a.Equals(b);
+
+            public static bool operator !=(Point a, Point b) => !a.Equals(b);
             
             /// <summary>
             /// Get the square magnitude of the current <c>Point</c>, that is, the square of its distance from the origin.
